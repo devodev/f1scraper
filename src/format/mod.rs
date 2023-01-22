@@ -1,8 +1,8 @@
-mod races;
+mod race;
 
-pub use races::Circuit;
-pub use races::RaceResultData;
-pub use races::RaceResultHeaders;
-pub use races::RaceResultSummaryData;
-pub use races::RaceResultSummaryHeaders;
-pub use races::Table;
+pub use race::Circuit;
+pub use race::RaceResultData;
+pub use race::RaceResultHeaders;
+pub use race::RaceResultSummaryData;
+pub use race::RaceResultSummaryHeaders;
+pub use race::Table;

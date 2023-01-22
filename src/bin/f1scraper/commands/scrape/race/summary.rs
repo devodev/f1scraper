@@ -1,7 +1,7 @@
 use crate::commands::scrape::ScrapeContext;
 use crate::prelude::*;
 
-use f1_scraper::parse::{parse_races_summary, RaceResultSummaryTable};
+use f1_scraper::parse::{parse_summary, RaceResultSummaryTable};
 use f1_scraper::scrape::Scraper;
 
 #[derive(Debug, clap::Args)]
@@ -62,7 +62,7 @@ pub fn query_and_parse(scraper: &Scraper, year: u16) -> Result<RaceResultSummary
         .with_context(|| format!("scrape: race result summary {}", year))?;
 
     // parse html text as race summary
-    let race_summary = parse_races_summary(&html, year)?;
+    let race_summary = parse_summary(&html, year)?;
     Ok(race_summary)
 }
 

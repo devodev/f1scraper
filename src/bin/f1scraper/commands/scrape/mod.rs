@@ -4,7 +4,7 @@ use f1_scraper::scrape::Scraper;
 
 use crate::prelude::*;
 
-mod races;
+mod race;
 
 #[derive(Default)]
 pub struct ScrapeContext {
@@ -25,14 +25,14 @@ pub struct Args {
 
 #[derive(Debug, Subcommand)]
 pub enum Commands {
-    /// Scrape Races commands
-    Races(races::Args),
+    /// Scrape Race commands
+    Race(race::Args),
 }
 
 pub fn process(cmd: Commands) -> Result<()> {
     let client = reqwest::blocking::Client::new();
     let ctx = ScrapeContext::new(Scraper::new(client));
     match cmd {
-        Commands::Races(args) => races::process(ctx, args.command),
+        Commands::Race(args) => race::process(ctx, args.command),
     }
 }

@@ -4,8 +4,7 @@ use crate::commands::scrape::ScrapeContext;
 use crate::prelude::*;
 
 use f1_scraper::format::Circuit;
-use f1_scraper::parse::parse_races;
-use f1_scraper::parse::RaceResultTable;
+use f1_scraper::parse::{parse_result, RaceResultTable};
 use f1_scraper::scrape::Scraper;
 use log::debug;
 
@@ -112,7 +111,7 @@ fn query_and_parse(scraper: &Scraper, year: u16, circuit: &Circuit) -> Result<Ra
         .with_context(|| format!("scrape: race result {}", year))?;
 
     // parse html text as race result
-    let race_result = parse_races(&html, year, &circuit.clone())?;
+    let race_result = parse_result(&html, year, &circuit.clone())?;
     Ok(race_result)
 }
 

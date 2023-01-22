@@ -2,12 +2,12 @@ use scraper::ElementRef;
 
 use crate::prelude::*;
 
-mod races;
+mod race;
 
-pub use races::parse_races;
-pub use races::parse_races_summary;
-pub use races::RaceResultSummaryTable;
-pub use races::RaceResultTable;
+pub use race::parse_result;
+pub use race::parse_summary;
+pub use race::RaceResultSummaryTable;
+pub use race::RaceResultTable;
 
 pub(crate) fn inner_html_to_string<'a>(
     i: &mut impl Iterator<Item = ElementRef<'a>>,

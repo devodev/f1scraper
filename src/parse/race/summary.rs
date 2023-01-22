@@ -8,7 +8,7 @@ use crate::prelude::*;
 
 pub type RaceResultSummaryTable = Table<RaceResultSummaryHeaders, RaceResultSummaryData>;
 
-pub fn parse_races_summary(html: &str, year: u16) -> Result<RaceResultSummaryTable> {
+pub fn parse(html: &str, year: u16) -> Result<RaceResultSummaryTable> {
     // parse html
     let document = Html::parse_document(&html);
 
@@ -22,19 +22,19 @@ pub fn parse_races_summary(html: &str, year: u16) -> Result<RaceResultSummaryTab
         .with_context(|| "selecting table")?;
 
     // parse headers from table
-    let headers = parse_races_summary_headers(&table)?;
+    let headers = parse_headers(&table)?;
 
     // parse summaries from table
     let rows_selector = Selector::parse("tbody>tr").unwrap();
     let rows = table.select(&rows_selector);
 
-    let summaries: Result<Vec<_>, _> = rows.map(|r| parse_races_summary_data(&r)).collect();
+    let summaries: Result<Vec<_>, _> = rows.map(|r| parse_data(&r)).collect();
     let summaries = summaries?;
 
     Ok(Table::new(year, headers, summaries))
 }
 
-fn parse_races_summary_headers(table: &ElementRef) -> Result<RaceResultSummaryHeaders> {
+fn parse_headers(table: &ElementRef) -> Result<RaceResultSummaryHeaders> {
     let headers_selector = Selector::parse("thead>tr>th").unwrap();
     let headers: Vec<String> = table
         .select(&headers_selector)
@@ -59,7 +59,7 @@ fn parse_races_summary_headers(table: &ElementRef) -> Result<RaceResultSummaryHe
     })
 }
 
-fn parse_races_summary_data(row: &ElementRef) -> Result<RaceResultSummaryData> {
+fn parse_data(row: &ElementRef) -> Result<RaceResultSummaryData> {
     let a = Selector::parse("a").unwrap();
     let td = Selector::parse("td").unwrap();
     let span = Selector::parse("span").unwrap();

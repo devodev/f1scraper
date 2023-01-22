@@ -8,7 +8,7 @@ use crate::prelude::*;
 
 pub type RaceResultTable = Table<RaceResultHeaders, RaceResultData>;
 
-pub fn parse_races(html: &str, year: u16, circuit: &Circuit) -> Result<RaceResultTable> {
+pub fn parse(html: &str, year: u16, circuit: &Circuit) -> Result<RaceResultTable> {
     // parse html
     let document = Html::parse_document(&html);
 
@@ -22,19 +22,19 @@ pub fn parse_races(html: &str, year: u16, circuit: &Circuit) -> Result<RaceResul
         .with_context(|| "selecting table")?;
 
     // parse headers from table
-    let headers = parse_races_headers(&table)?;
+    let headers = parse_headers(&table)?;
 
     // parse summaries from table
     let rows_selector = Selector::parse("tbody>tr").unwrap();
     let rows = table.select(&rows_selector);
 
-    let summaries: Result<Vec<_>, _> = rows.map(|r| parse_races_data(&r)).collect();
+    let summaries: Result<Vec<_>, _> = rows.map(|r| parse_data(&r)).collect();
     let summaries = summaries?;
 
     Ok(Table::new(year, headers, summaries).with_circuit(circuit.clone()))
 }
 
-fn parse_races_headers(table: &ElementRef) -> Result<RaceResultHeaders> {
+fn parse_headers(table: &ElementRef) -> Result<RaceResultHeaders> {
     let headers_selector = Selector::parse("thead>tr>th").unwrap();
     let headers: Vec<String> = table
         .select(&headers_selector)
@@ -67,7 +67,7 @@ fn parse_races_headers(table: &ElementRef) -> Result<RaceResultHeaders> {
     })
 }
 
-fn parse_races_data(row: &ElementRef) -> Result<RaceResultData> {
+fn parse_data(row: &ElementRef) -> Result<RaceResultData> {
     let td = Selector::parse("td").unwrap();
     let span = Selector::parse("span").unwrap();
 
