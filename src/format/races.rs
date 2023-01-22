@@ -16,7 +16,7 @@ pub struct Race {
 #[derive(Default, Debug)]
 pub struct Table<Headers: Debug, Data: Debug> {
     pub year: u16,
-    pub circuit: Option<String>,
+    pub circuit: Option<Circuit>,
     pub headers: Headers,
     pub data: Vec<Data>,
 }
@@ -31,8 +31,8 @@ impl<Headers: Debug, Data: Debug> Table<Headers, Data> {
         }
     }
 
-    pub fn with_circuit<S: Into<String>>(mut self, name: S) -> Self {
-        self.circuit = Some(name.into());
+    pub fn with_circuit<S: Into<Circuit>>(mut self, circuit: S) -> Self {
+        self.circuit = Some(circuit.into());
         self
     }
 }
@@ -80,17 +80,19 @@ pub struct RaceResultSummaryData {
     pub time: String,
 }
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct Circuit {
     pub idx: u16,
     pub name: String,
+    pub display_name: String,
 }
 
 impl Circuit {
-    fn new<S: Into<String>>(idx: u16, name: S) -> Self {
+    fn new<S: Into<String>>(idx: u16, name: S, display_name: S) -> Self {
         Self {
             idx,
             name: name.into(),
+            display_name: display_name.into(),
         }
     }
 }
@@ -116,7 +118,7 @@ impl RaceResultSummaryData {
         })?;
         let name = tokens[1];
 
-        Ok(Circuit::new(idx, name))
+        Ok(Circuit::new(idx, name, &self.grand_prix))
     }
 }
 

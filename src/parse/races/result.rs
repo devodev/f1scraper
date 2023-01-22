@@ -2,13 +2,13 @@ use anyhow::Context;
 use scraper::{ElementRef, Html, Selector};
 use selectors::attr::CaseSensitivity;
 
-use crate::format::{RaceResultData, RaceResultHeaders, Table};
+use crate::format::{Circuit, RaceResultData, RaceResultHeaders, Table};
 use crate::parse::inner_html_to_string;
 use crate::prelude::*;
 
 pub type RaceResultTable = Table<RaceResultHeaders, RaceResultData>;
 
-pub fn parse_races(html: &str, year: u16, circuit: String) -> Result<RaceResultTable> {
+pub fn parse_races(html: &str, year: u16, circuit: &Circuit) -> Result<RaceResultTable> {
     // parse html
     let document = Html::parse_document(&html);
 
@@ -31,7 +31,7 @@ pub fn parse_races(html: &str, year: u16, circuit: String) -> Result<RaceResultT
     let summaries: Result<Vec<_>, _> = rows.map(|r| parse_races_data(&r)).collect();
     let summaries = summaries?;
 
-    Ok(Table::new(year, headers, summaries).with_circuit(circuit))
+    Ok(Table::new(year, headers, summaries).with_circuit(circuit.clone()))
 }
 
 pub fn parse_races_headers(table: &ElementRef) -> Result<RaceResultHeaders> {

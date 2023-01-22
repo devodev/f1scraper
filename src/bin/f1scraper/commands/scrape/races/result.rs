@@ -39,8 +39,10 @@ pub fn process(scrape_ctx: ScrapeContext, args: Args) -> Result<()> {
     for year in year_min..=year_max {
         let summary = summary::query_and_parse(&scrape_ctx.scraper, year)?;
 
-        // index circuits
-        let mut hm = HashMap::new();
+        // retrieve circuits
+        // index by name
+        let mut circuit_by_name = HashMap::new();
+        let mut circuit_by_display_name = HashMap::new();
         for gp in &summary.data {
             let circuit = gp.circuit().with_context(|| {
                 format!(
@@ -48,18 +50,29 @@ pub fn process(scrape_ctx: ScrapeContext, args: Args) -> Result<()> {
                     gp.grand_prix
                 )
             })?;
-            hm.insert(circuit.name.clone(), circuit);
+            circuit_by_name.insert(circuit.name.clone().trim().to_lowercase(), circuit.clone());
+            circuit_by_display_name
+                .insert(circuit.display_name.clone().trim().to_lowercase(), circuit);
         }
-        debug!("circuit index: {:?}", hm);
+        debug!("circuit index: {:?}", circuit_by_name);
 
-        let mut circuits: Vec<_> = hm.values().collect();
+        // all circuits
+        let mut circuits: Vec<_> = circuit_by_name.values().collect();
+
+        // if argument passed, filter by circuit name
         if let Some(circuit_name) = &args.circuit_name {
-            let circuit = hm.get(circuit_name).ok_or(anyhow::anyhow!(
-                "find grand prix for year `{}` with name: {}",
-                year,
-                circuit_name
-            ))?;
-            circuits = hm.values().filter(|c| c.name == circuit.name).collect();
+            let circuit_name = &circuit_name.trim().to_lowercase();
+            let circuit_name_indexes = vec![&circuit_by_name, &circuit_by_display_name];
+            let circuit = circuit_name_indexes
+                .iter()
+                .filter_map(|index| index.get(circuit_name))
+                .nth(0)
+                .ok_or(anyhow::anyhow!(
+                    "find grand prix for year `{}` with name: {}",
+                    year,
+                    circuit_name
+                ))?;
+            circuits = vec![circuit];
         }
         for circuit in circuits {
             let race_result = query_and_parse(&scrape_ctx.scraper, year, circuit)?;
@@ -99,13 +112,26 @@ fn query_and_parse(scraper: &Scraper, year: u16, circuit: &Circuit) -> Result<Ra
         .with_context(|| format!("scrape: race result {}", year))?;
 
     // parse html text as race result
-    let race_result = parse_races(&html, year, circuit.name.clone())?;
+    let race_result = parse_races(&html, year, &circuit.clone())?;
     Ok(race_result)
 }
 
 fn print(race_result: &RaceResultTable) -> Result<()> {
-    let circuit = race_result.circuit.clone().unwrap_or("-".to_string());
-    let prefix = format!("[{}][{}]", race_result.year, circuit);
+    let default_value = "-".to_string();
+    let circuit_name = race_result
+        .circuit
+        .as_ref()
+        .and_then(|c| Some(&c.name))
+        .unwrap_or(&default_value);
+    let circuit_display_name = race_result
+        .circuit
+        .as_ref()
+        .and_then(|c| Some(&c.display_name))
+        .unwrap_or(&default_value);
+    let prefix = format!(
+        "[{}][{} ({})]",
+        race_result.year, circuit_display_name, circuit_name
+    );
     println!("{} {:?}", prefix, race_result.headers);
     for row in race_result.data.iter() {
         println!("{} {:?}", prefix, row);
