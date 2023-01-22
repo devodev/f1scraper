@@ -7,7 +7,6 @@ use f1_scraper::scrape::Scraper;
 #[derive(Debug, clap::Args)]
 pub struct Args {
     /// Only scrape the page for the provided year
-    #[arg(short, long)]
     year: Option<u16>,
 
     /// Minimim year to use when scraping race pages

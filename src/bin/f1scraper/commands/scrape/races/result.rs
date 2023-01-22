@@ -13,12 +13,11 @@ use super::summary;
 
 #[derive(Debug, clap::Args)]
 pub struct Args {
+    /// Only scrape the page for the provided year
+    year: Option<u16>,
+
     /// The name of the Grand Prix
     circuit_name: Option<String>,
-
-    /// Only scrape the page for the provided year
-    #[arg(short, long)]
-    year: Option<u16>,
 
     /// Minimim year to use when scraping race pages
     #[arg(long, default_value_t = 1950)]
