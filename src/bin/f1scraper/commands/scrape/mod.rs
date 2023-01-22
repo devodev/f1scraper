@@ -1,8 +1,22 @@
 use clap::Subcommand;
 
+use f1_scraper::scrape::Scraper;
+
 use crate::prelude::*;
 
 mod races;
+
+pub struct ScrapeContext {
+    scraper: Scraper,
+}
+
+impl ScrapeContext {
+    fn new() -> Self {
+        Self {
+            scraper: Scraper::default(),
+        }
+    }
+}
 
 #[derive(Debug, clap::Args)]
 pub struct Args {
@@ -17,7 +31,8 @@ pub enum Commands {
 }
 
 pub fn process(cmd: Commands) -> Result<()> {
+    let ctx = ScrapeContext::new();
     match cmd {
-        Commands::Races(args) => races::process(args.command),
+        Commands::Races(args) => races::process(ctx, args.command),
     }
 }

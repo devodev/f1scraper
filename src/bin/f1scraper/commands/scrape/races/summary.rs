@@ -1,3 +1,4 @@
+use crate::commands::scrape::ScrapeContext;
 use crate::prelude::*;
 
 use f1_scraper::format;
@@ -19,19 +20,17 @@ pub struct Args {
     year_max: u16,
 }
 
-pub fn process(args: Args) -> Result<()> {
-    let scraper = f1_scraper::scrape::Scraper::default();
-
+pub fn process(scrape_ctx: ScrapeContext, args: Args) -> Result<()> {
     // exact year takes precedence
     if let Some(year) = args.year {
-        let race_summary = query_and_parse(&scraper, year)?;
+        let race_summary = query_and_parse(&scrape_ctx.scraper, year)?;
         print(&race_summary)?;
         return Ok(());
     }
 
     // range of years
     for year in args.year_min..=args.year_max {
-        let race_summary = query_and_parse(&scraper, year)?;
+        let race_summary = query_and_parse(&scrape_ctx.scraper, year)?;
         print(&race_summary)?
     }
     Ok(())
