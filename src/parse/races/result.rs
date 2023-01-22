@@ -34,7 +34,7 @@ pub fn parse_races(html: &str, year: u16, circuit: &Circuit) -> Result<RaceResul
     Ok(Table::new(year, headers, summaries).with_circuit(circuit.clone()))
 }
 
-pub fn parse_races_headers(table: &ElementRef) -> Result<RaceResultHeaders> {
+fn parse_races_headers(table: &ElementRef) -> Result<RaceResultHeaders> {
     let headers_selector = Selector::parse("thead>tr>th").unwrap();
     let headers: Vec<String> = table
         .select(&headers_selector)
@@ -67,7 +67,7 @@ pub fn parse_races_headers(table: &ElementRef) -> Result<RaceResultHeaders> {
     })
 }
 
-pub fn parse_races_data(row: &ElementRef) -> Result<RaceResultData> {
+fn parse_races_data(row: &ElementRef) -> Result<RaceResultData> {
     let td = Selector::parse("td").unwrap();
     let span = Selector::parse("span").unwrap();
 

@@ -34,7 +34,7 @@ pub fn parse_races_summary(html: &str, year: u16) -> Result<RaceResultSummaryTab
     Ok(Table::new(year, headers, summaries))
 }
 
-pub fn parse_races_summary_headers(table: &ElementRef) -> Result<RaceResultSummaryHeaders> {
+fn parse_races_summary_headers(table: &ElementRef) -> Result<RaceResultSummaryHeaders> {
     let headers_selector = Selector::parse("thead>tr>th").unwrap();
     let headers: Vec<String> = table
         .select(&headers_selector)
@@ -59,7 +59,7 @@ pub fn parse_races_summary_headers(table: &ElementRef) -> Result<RaceResultSumma
     })
 }
 
-pub fn parse_races_summary_data(row: &ElementRef) -> Result<RaceResultSummaryData> {
+fn parse_races_summary_data(row: &ElementRef) -> Result<RaceResultSummaryData> {
     let a = Selector::parse("a").unwrap();
     let td = Selector::parse("td").unwrap();
     let span = Selector::parse("span").unwrap();
