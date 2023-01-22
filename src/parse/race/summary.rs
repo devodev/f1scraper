@@ -28,10 +28,10 @@ pub fn parse(html: &str, year: u16) -> Result<RaceResultSummaryTable> {
     let rows_selector = Selector::parse("tbody>tr").unwrap();
     let rows = table.select(&rows_selector);
 
-    let summaries: Result<Vec<_>, _> = rows.map(|r| parse_data(&r)).collect();
-    let summaries = summaries?;
+    let data: Result<Vec<_>, _> = rows.map(|r| parse_data(&r)).collect();
+    let data = data?;
 
-    Ok(Table::new(year, headers, summaries))
+    Ok(Table::new(year, headers, data))
 }
 
 fn parse_headers(table: &ElementRef) -> Result<RaceResultSummaryHeaders> {

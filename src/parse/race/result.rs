@@ -28,10 +28,10 @@ pub fn parse(html: &str, year: u16, circuit: &Circuit) -> Result<RaceResultTable
     let rows_selector = Selector::parse("tbody>tr").unwrap();
     let rows = table.select(&rows_selector);
 
-    let summaries: Result<Vec<_>, _> = rows.map(|r| parse_data(&r)).collect();
-    let summaries = summaries?;
+    let data: Result<Vec<_>, _> = rows.map(|r| parse_data(&r)).collect();
+    let data = data?;
 
-    Ok(Table::new(year, headers, summaries).with_circuit(circuit.clone()))
+    Ok(Table::new(year, headers, data).with_circuit(circuit.clone()))
 }
 
 fn parse_headers(table: &ElementRef) -> Result<RaceResultHeaders> {
