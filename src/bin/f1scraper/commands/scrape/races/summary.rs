@@ -53,7 +53,7 @@ impl f1_scraper::scrape::ScrapeTarget for RaceResultSummaryTarget {
     }
 }
 
-fn query_and_parse(scraper: &Scraper, year: u16) -> Result<RaceResultSummaryTable> {
+pub fn query_and_parse(scraper: &Scraper, year: u16) -> Result<RaceResultSummaryTable> {
     // create scrape target
     let target = RaceResultSummaryTarget::new(year)
         .with_context(|| format!("create scrape target: race result summary {}", year))?;
@@ -63,7 +63,7 @@ fn query_and_parse(scraper: &Scraper, year: u16) -> Result<RaceResultSummaryTabl
         .with_context(|| format!("scrape: race result summary {}", year))?;
 
     // parse html text as race summary
-    let race_summary = parse_races_summary(format!("{year}"), &html)?;
+    let race_summary = parse_races_summary(&html, year)?;
     Ok(race_summary)
 }
 

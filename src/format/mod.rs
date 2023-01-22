@@ -1,5 +1,6 @@
 mod races;
 
+pub use races::Circuit;
 pub use races::RaceResultData;
 pub use races::RaceResultHeaders;
 pub use races::RaceResultSummaryData;

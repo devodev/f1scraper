@@ -3,5 +3,5 @@ pub mod parse;
 pub mod scrape;
 
 mod prelude {
-    pub use anyhow::Result;
+    pub use anyhow::{Context, Result};
 }

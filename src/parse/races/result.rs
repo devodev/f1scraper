@@ -8,7 +8,7 @@ use crate::prelude::*;
 
 pub type RaceResultTable = Table<RaceResultHeaders, RaceResultData>;
 
-pub fn parse_races(year: String, html: &str) -> Result<RaceResultTable> {
+pub fn parse_races(html: &str, year: u16, circuit: String) -> Result<RaceResultTable> {
     // parse html
     let document = Html::parse_document(&html);
 
@@ -31,7 +31,7 @@ pub fn parse_races(year: String, html: &str) -> Result<RaceResultTable> {
     let summaries: Result<Vec<_>, _> = rows.map(|r| parse_races_data(&r)).collect();
     let summaries = summaries?;
 
-    Ok(Table::new(year, headers, summaries))
+    Ok(Table::new(year, headers, summaries).with_circuit(circuit))
 }
 
 pub fn parse_races_headers(table: &ElementRef) -> Result<RaceResultHeaders> {

@@ -1,5 +1,7 @@
 use std::fmt::Debug;
 
+use crate::prelude::*;
+
 #[derive(Default, Debug)]
 pub struct Race {
     pub name: String,
@@ -13,18 +15,25 @@ pub struct Race {
 
 #[derive(Default, Debug)]
 pub struct Table<Headers: Debug, Data: Debug> {
-    pub year: String,
+    pub year: u16,
+    pub circuit: Option<String>,
     pub headers: Headers,
     pub data: Vec<Data>,
 }
 
 impl<Headers: Debug, Data: Debug> Table<Headers, Data> {
-    pub fn new<S: Into<String>, D: Into<Vec<Data>>>(year: S, headers: Headers, data: D) -> Self {
+    pub fn new<U: Into<u16>, D: Into<Vec<Data>>>(year: U, headers: Headers, data: D) -> Self {
         Self {
             year: year.into(),
+            circuit: None,
             headers: headers,
             data: data.into(),
         }
+    }
+
+    pub fn with_circuit<S: Into<String>>(mut self, name: S) -> Self {
+        self.circuit = Some(name.into());
+        self
     }
 }
 
@@ -69,6 +78,46 @@ pub struct RaceResultSummaryData {
     pub car: String,
     pub laps: String,
     pub time: String,
+}
+
+#[derive(Default, Debug)]
+pub struct Circuit {
+    pub idx: u16,
+    pub name: String,
+}
+
+impl Circuit {
+    fn new<S: Into<String>>(idx: u16, name: S) -> Self {
+        Self {
+            idx,
+            name: name.into(),
+        }
+    }
+}
+
+impl RaceResultSummaryData {
+    pub fn circuit(&self) -> Result<Circuit> {
+        // Example:
+        //   /en/results.html/1950/races/100/italy/race-result.html
+        let tokens: Vec<_> = self.url.split("/").skip(5).take(2).collect();
+        if tokens.len() != 2 {
+            return Err(anyhow::anyhow!(
+                "can't parse url: invalid format: {}",
+                self.url
+            ));
+        }
+
+        let idx_token = tokens[0];
+        let idx = idx_token.parse::<u16>().with_context(|| {
+            format!(
+                "parse circuit index from url (token: `{}`): `{}`",
+                idx_token, self.url
+            )
+        })?;
+        let name = tokens[1];
+
+        Ok(Circuit::new(idx, name))
+    }
 }
 
 #[derive(Default, Debug)]

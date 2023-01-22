@@ -8,7 +8,7 @@ use crate::prelude::*;
 
 pub type RaceResultSummaryTable = Table<RaceResultSummaryHeaders, RaceResultSummaryData>;
 
-pub fn parse_races_summary(year: String, html: &str) -> Result<RaceResultSummaryTable> {
+pub fn parse_races_summary(html: &str, year: u16) -> Result<RaceResultSummaryTable> {
     // parse html
     let document = Html::parse_document(&html);
 
