@@ -1,4 +1,5 @@
 use anyhow::{Context, Result};
+use log::debug;
 
 pub trait ScrapeTarget {
     fn request(&self) -> reqwest::blocking::Request;
@@ -17,10 +18,32 @@ impl Scraper {
     pub fn scrape(&self, target: impl ScrapeTarget) -> Result<String> {
         let req = target.request();
         let url = &req.url().clone();
-        let text = self
+
+        debug!("[{}] Executing reqwest", url);
+        let response = self
             .client
             .execute(req)
-            .with_context(|| format!("execute scrape request: {}", url))?
+            .with_context(|| format!("execute scrape request: {}", url))?;
+
+        debug!(
+            "[{}] Response: {:?} {}",
+            url,
+            response.version(),
+            response.status()
+        );
+        debug!("[{}] Headers: {:#?}", url, response.headers());
+
+        // handle errors
+        if !response.status().is_success() {
+            return Err(anyhow::anyhow!(
+                "request failed: {}: {}",
+                response.status(),
+                &response.text().unwrap_or("".to_string())
+            ));
+        }
+
+        // return body
+        let text = response
             .text()
             .with_context(|| format!("parse scrape response as text: {}", url))?;
         Ok(text)
