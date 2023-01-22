@@ -17,4 +17,4 @@ selectors = "0.22.0"
 
 [[bin]]
 name = "f1scraper"
-path = "src/bin/f1scraper.rs"
+path = "src/bin/f1scraper/main.rs"
