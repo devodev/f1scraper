@@ -11,8 +11,10 @@ pub struct Scraper {
 }
 
 impl Scraper {
-    pub fn new(client: reqwest::blocking::Client) -> Self {
-        Self { client }
+    pub fn new<C: Into<reqwest::blocking::Client>>(client: C) -> Self {
+        Self {
+            client: client.into(),
+        }
     }
 
     pub fn scrape(&self, target: impl ScrapeTarget) -> Result<String> {

@@ -6,15 +6,14 @@ use crate::prelude::*;
 
 mod races;
 
+#[derive(Default)]
 pub struct ScrapeContext {
     scraper: Scraper,
 }
 
 impl ScrapeContext {
-    fn new() -> Self {
-        Self {
-            scraper: Scraper::default(),
-        }
+    fn new(scraper: Scraper) -> Self {
+        Self { scraper }
     }
 }
 
@@ -31,7 +30,8 @@ pub enum Commands {
 }
 
 pub fn process(cmd: Commands) -> Result<()> {
-    let ctx = ScrapeContext::new();
+    let client = reqwest::blocking::Client::new();
+    let ctx = ScrapeContext::new(Scraper::new(client));
     match cmd {
         Commands::Races(args) => races::process(ctx, args.command),
     }
