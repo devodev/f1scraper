@@ -2,7 +2,7 @@ use std::fmt;
 
 use clap::Subcommand;
 
-use f1_scraper::scrape::Scraper;
+use f1scraper::scrape::Scraper;
 
 use crate::prelude::*;
 

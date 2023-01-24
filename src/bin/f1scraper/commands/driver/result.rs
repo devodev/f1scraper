@@ -1,12 +1,12 @@
 use log::debug;
 use std::collections::HashMap;
 
+use f1scraper::parse::driver::{parse_result, DriverResultTable};
+use f1scraper::scrape::{DriverResultTarget, Scraper};
+use f1scraper::types::DriverFragment;
+
 use crate::commands::ScrapeContext;
 use crate::{prelude::*, YearFlags};
-
-use f1_scraper::parse::driver::{parse_result, DriverResultTable};
-use f1_scraper::scrape::{DriverResultTarget, Scraper};
-use f1_scraper::types::DriverFragment;
 
 use super::summary;
 

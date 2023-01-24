@@ -1,3 +1,4 @@
 {
-  "window.title": "${dirty}${rootName}"
+  "window.title": "${dirty}${rootName}",
+  "markdown.extension.toc.levels": "2..6"
 }

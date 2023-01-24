@@ -1,8 +1,8 @@
+use f1scraper::parse::driver::{parse_summary, DriverResultSummaryTable};
+use f1scraper::scrape::{DriverResultSummaryTarget, Scraper};
+
 use crate::commands::ScrapeContext;
 use crate::{prelude::*, YearFlags};
-
-use f1_scraper::parse::driver::{parse_summary, DriverResultSummaryTable};
-use f1_scraper::scrape::{DriverResultSummaryTarget, Scraper};
 
 #[derive(Debug, clap::Args)]
 pub struct Args {

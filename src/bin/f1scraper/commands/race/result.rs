@@ -1,12 +1,12 @@
 use log::debug;
 use std::collections::HashMap;
 
+use f1scraper::parse::race::{parse_result, RaceResultTable};
+use f1scraper::scrape::{RaceResultTarget, Scraper};
+use f1scraper::types::Circuit;
+
 use crate::commands::ScrapeContext;
 use crate::{prelude::*, YearFlags};
-
-use f1_scraper::parse::race::{parse_result, RaceResultTable};
-use f1_scraper::scrape::{RaceResultTarget, Scraper};
-use f1_scraper::types::Circuit;
 
 use super::summary;
 

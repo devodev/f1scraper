@@ -1,8 +1,8 @@
+use f1scraper::parse::race::{parse_summary, RaceResultSummaryTable};
+use f1scraper::scrape::{RaceResultSummaryTarget, Scraper};
+
 use crate::commands::ScrapeContext;
 use crate::{prelude::*, YearFlags};
-
-use f1_scraper::parse::race::{parse_summary, RaceResultSummaryTable};
-use f1_scraper::scrape::{RaceResultSummaryTarget, Scraper};
 
 #[derive(Debug, clap::Args)]
 pub struct Args {
