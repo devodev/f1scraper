@@ -1,43 +1,36 @@
 use anyhow::Context;
+use scraper::element_ref::Select;
 use scraper::{ElementRef, Html, Selector};
 use selectors::attr::CaseSensitivity;
 
-use crate::parse::inner_html_to_string;
+use crate::parse::{inner_html_to_string, HtmlTable};
 use crate::prelude::*;
 use crate::types::{Circuit, RaceResultData, RaceResultHeaders, Table};
 
 pub type RaceResultTable = Table<RaceResultHeaders, RaceResultData>;
 
+const TABLE_SELECTOR_STR: &str = "div.resultsarchive-wrapper>div.resultsarchive-content>div.resultsarchive-col-right>table.resultsarchive-table";
+
 pub fn parse(html: &str, year: u16, circuit: &Circuit) -> Result<RaceResultTable> {
     // parse html
     let document = Html::parse_document(html);
+    let document_root = document.root_element();
 
     // select table
-    let table_selector =
-        Selector::parse("div.resultsarchive-wrapper>div.resultsarchive-content>div.resultsarchive-col-right>table.resultsarchive-table")
-            .unwrap();
-    let table = document
-        .select(&table_selector)
-        .next()
-        .with_context(|| "selecting table")?;
+    let table = HtmlTable::parse(&document_root, TABLE_SELECTOR_STR)?;
 
     // parse headers from table
-    let headers = parse_headers(&table)?;
+    let headers = parse_headers(table.headers())?;
 
-    // parse summaries from table
-    let rows_selector = Selector::parse("tbody>tr").unwrap();
-    let rows = table.select(&rows_selector);
+    // parse content
+    let content: Result<Vec<_>, _> = table.rows().map(|r| parse_row(&r)).collect();
+    let content = content?;
 
-    let data: Result<Vec<_>, _> = rows.map(|r| parse_data(&r)).collect();
-    let data = data?;
-
-    Ok(Table::new(year, headers, data).with_circuit(circuit.clone()))
+    Ok(Table::new(year, headers, content).with_circuit(circuit.clone()))
 }
 
-fn parse_headers(table: &ElementRef) -> Result<RaceResultHeaders> {
-    let headers_selector = Selector::parse("thead>tr>th").unwrap();
-    let headers: Vec<String> = table
-        .select(&headers_selector)
+fn parse_headers(s: Select) -> Result<RaceResultHeaders> {
+    let headers: Vec<String> = s
         .filter(|col| {
             !col.value()
                 .has_class("limiter", CaseSensitivity::AsciiCaseInsensitive)
@@ -67,7 +60,7 @@ fn parse_headers(table: &ElementRef) -> Result<RaceResultHeaders> {
     })
 }
 
-fn parse_data(row: &ElementRef) -> Result<RaceResultData> {
+fn parse_row(row: &ElementRef) -> Result<RaceResultData> {
     let td = Selector::parse("td").unwrap();
     let span = Selector::parse("span").unwrap();
 
