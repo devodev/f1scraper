@@ -17,7 +17,7 @@ struct Cli {
     #[command(subcommand)]
     command: commands::Commands,
 
-    /// Enable debug logging
+    /// Enable info(-v), debug(-vv) or trace(-vvv) logging
     #[arg(long, short = 'v', action = clap::ArgAction::Count)]
     verbose: u8,
 }
