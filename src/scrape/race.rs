@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use crate::scrape::ScrapeTarget;
 use crate::types::Circuit;
 
 pub struct RaceResultSummaryTarget {
@@ -13,7 +14,7 @@ impl RaceResultSummaryTarget {
     }
 }
 
-impl crate::scrape::ScrapeTarget for RaceResultSummaryTarget {
+impl ScrapeTarget for RaceResultSummaryTarget {
     fn request(&self) -> reqwest::blocking::Request {
         reqwest::blocking::Request::new(reqwest::Method::GET, self.url.clone())
     }
@@ -33,7 +34,7 @@ impl RaceResultTarget {
     }
 }
 
-impl crate::scrape::ScrapeTarget for RaceResultTarget {
+impl ScrapeTarget for RaceResultTarget {
     fn request(&self) -> reqwest::blocking::Request {
         reqwest::blocking::Request::new(reqwest::Method::GET, self.url.clone())
     }

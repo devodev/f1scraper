@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use crate::scrape::ScrapeTarget;
 use crate::types::DriverFragment;
 
 pub struct DriverResultSummaryTarget {
@@ -13,7 +14,7 @@ impl DriverResultSummaryTarget {
     }
 }
 
-impl crate::scrape::ScrapeTarget for DriverResultSummaryTarget {
+impl ScrapeTarget for DriverResultSummaryTarget {
     fn request(&self) -> reqwest::blocking::Request {
         reqwest::blocking::Request::new(reqwest::Method::GET, self.url.clone())
     }
@@ -33,7 +34,7 @@ impl DriverResultTarget {
     }
 }
 
-impl crate::scrape::ScrapeTarget for DriverResultTarget {
+impl ScrapeTarget for DriverResultTarget {
     fn request(&self) -> reqwest::blocking::Request {
         reqwest::blocking::Request::new(reqwest::Method::GET, self.url.clone())
     }
