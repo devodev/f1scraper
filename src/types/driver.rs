@@ -2,38 +2,34 @@ use std::fmt::Debug;
 
 use crate::prelude::*;
 
-// use super::Table;
+use super::Table;
 
-// #[derive(Default, Debug)]
-// pub struct Driver {
-//     pub name: String,
-//     pub circuit: String,
-//     pub date: String,
+#[derive(Default, Debug)]
+pub struct Driver {
+    pub name: String,
+    pub circuit: String,
+    pub date: String,
 
-//     pub race_results: Vec<Table<DriverResultHeaders, DriverResultData>>,
-// }
+    pub race_results: Vec<Table<DriverResultHeaders, DriverResultData>>,
+}
 
-// #[derive(Default, Debug)]
-// pub struct DriverResultData {
-//     pub pos: String,
-//     pub no: String,
-//     pub driver: String,
-//     pub car: String,
-//     pub laps: String,
-//     pub time_retired: String,
-//     pub pts: String,
-// }
+#[derive(Default, Debug)]
+pub struct DriverResultData {
+    pub grand_prix: String,
+    pub date: String,
+    pub car: String,
+    pub pos: String,
+    pub pts: String,
+}
 
-// #[derive(Default, Debug)]
-// pub struct DriverResultHeaders {
-//     pub pos: String,
-//     pub no: String,
-//     pub driver: String,
-//     pub car: String,
-//     pub laps: String,
-//     pub time_retired: String,
-//     pub pts: String,
-// }
+#[derive(Default, Debug)]
+pub struct DriverResultHeaders {
+    pub grand_prix: String,
+    pub date: String,
+    pub car: String,
+    pub pos: String,
+    pub pts: String,
+}
 
 #[derive(Default, Debug)]
 pub struct DriverResultSummaryHeaders {

@@ -8,8 +8,8 @@ pub use race::RaceResultSummaryData;
 pub use race::RaceResultSummaryHeaders;
 
 pub use driver::DriverFragment;
-// pub use driver::DriverResultData;
-// pub use driver::DriverResultHeaders;
+pub use driver::DriverResultData;
+pub use driver::DriverResultHeaders;
 pub use driver::DriverResultSummaryData;
 pub use driver::DriverResultSummaryHeaders;
 

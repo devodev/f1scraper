@@ -2,6 +2,8 @@ use std::fmt::Debug;
 
 use crate::prelude::*;
 
+use super::DriverFragment;
+
 #[derive(Default, Debug)]
 pub struct Race {
     pub name: String,
@@ -17,6 +19,7 @@ pub struct Race {
 pub struct Table<Headers: Debug, Data: Debug> {
     pub year: u16,
     pub circuit: Option<Circuit>,
+    pub driver: Option<DriverFragment>,
     pub headers: Headers,
     pub data: Vec<Data>,
 }
@@ -26,6 +29,7 @@ impl<Headers: Debug, Data: Debug> Table<Headers, Data> {
         Self {
             year: year.into(),
             circuit: None,
+            driver: None,
             headers,
             data: data.into(),
         }
@@ -33,6 +37,11 @@ impl<Headers: Debug, Data: Debug> Table<Headers, Data> {
 
     pub fn with_circuit<S: Into<Circuit>>(mut self, circuit: S) -> Self {
         self.circuit = Some(circuit.into());
+        self
+    }
+
+    pub fn with_driver<S: Into<DriverFragment>>(mut self, driver: S) -> Self {
+        self.driver = Some(driver.into());
         self
     }
 }

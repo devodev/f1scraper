@@ -6,7 +6,7 @@ mod driver;
 mod race;
 
 pub use driver::DriverResultSummaryTarget;
-// pub use driver::DriverResultTarget;
+pub use driver::DriverResultTarget;
 pub use race::RaceResultSummaryTarget;
 pub use race::RaceResultTarget;
 

@@ -5,14 +5,14 @@ use selectors::attr::CaseSensitivity;
 
 use crate::parse::{next_inner_html, HtmlTable};
 use crate::prelude::*;
-use crate::types::{DriverResultSummaryData, DriverResultSummaryHeaders, Table};
+use crate::types::{DriverFragment, DriverResultData, DriverResultHeaders, Table};
 
-pub type DriverResultSummaryTable = Table<DriverResultSummaryHeaders, DriverResultSummaryData>;
+pub type DriverResultTable = Table<DriverResultHeaders, DriverResultData>;
 
 const TABLE_SELECTOR_STR: &str =
     "div.resultsarchive-wrapper>div.resultsarchive-content>div.table-wrap>table.resultsarchive-table";
 
-pub fn parse(html: &str, year: u16) -> Result<DriverResultSummaryTable> {
+pub fn parse(html: &str, year: u16, driver: &DriverFragment) -> Result<DriverResultTable> {
     // parse html
     let document = Html::parse_document(html);
     let document_root = document.root_element();
@@ -27,14 +27,21 @@ pub fn parse(html: &str, year: u16) -> Result<DriverResultSummaryTable> {
     let data: Result<Vec<_>, _> = table.rows().map(|r| parse_row(&r)).collect();
     let data = data.with_context(|| "parse table rows")?;
 
-    Ok(Table::new(year, headers, data))
+    Ok(Table::new(year, headers, data).with_driver(driver.clone()))
 }
 
-fn parse_headers(s: Select) -> Result<DriverResultSummaryHeaders> {
+fn parse_headers(s: Select) -> Result<DriverResultHeaders> {
     let headers: Vec<String> = s
         .filter(|col| {
             !col.value()
                 .has_class("limiter", CaseSensitivity::AsciiCaseInsensitive)
+        })
+        .map(|x| {
+            if let Some(child) = x.first_child() {
+                ElementRef::wrap(child).unwrap_or(x)
+            } else {
+                x
+            }
         })
         .map(|x| x.inner_html())
         .collect();
@@ -43,68 +50,52 @@ fn parse_headers(s: Select) -> Result<DriverResultSummaryHeaders> {
         return Err(anyhow::anyhow!("invalid header count: {header_count}"));
     }
 
-    Ok(DriverResultSummaryHeaders {
-        pos: headers[0].to_owned(),
-        driver: headers[1].to_owned(),
-        nationality: headers[2].to_owned(),
+    Ok(DriverResultHeaders {
+        grand_prix: headers[0].to_owned(),
+        date: headers[1].to_owned(),
+        pos: headers[2].to_owned(),
         car: headers[3].to_owned(),
         pts: headers[4].to_owned(),
     })
 }
 
-fn parse_row(row: &ElementRef) -> Result<DriverResultSummaryData> {
+fn parse_row(row: &ElementRef) -> Result<DriverResultData> {
     let a = Selector::parse("a").unwrap();
     let td = Selector::parse("td").unwrap();
-    let span = Selector::parse("span").unwrap();
 
     let mut cols = row.select(&td).filter(|row| {
         !row.value()
             .has_class("limiter", CaseSensitivity::AsciiCaseInsensitive)
     });
 
-    let pos = next_inner_html(&mut cols).with_context(|| "column: pos")?;
-    let driver_col = cols
+    let grand_prix = cols
         .next()
-        .ok_or(anyhow::anyhow!("expected table column: driver"))?
+        .ok_or(anyhow::anyhow!("expected column: grand_prix"))?
         .select(&a)
+        .map(|x| x.inner_html())
         .next()
         .ok_or(anyhow::anyhow!(
-            "expected a element on table column: driver"
-        ))?;
-
-    let url = driver_col
-        .value()
-        .attr("href")
-        .ok_or(anyhow::anyhow!(
-            "expected a element to contain url on column: driver"
+            "expected column: grand_prix in <a> element"
         ))?
         .trim()
         .to_string();
-
-    let driver = driver_col
-        .select(&span)
-        .map(|x| x.inner_html())
-        .collect::<Vec<String>>()
-        .join(" ")
-        .trim()
-        .to_string();
-    let nationality = next_inner_html(&mut cols).with_context(|| "column: nationality")?;
+    let date = next_inner_html(&mut cols).with_context(|| "column: date")?;
     let car = cols
         .next()
-        .ok_or(anyhow::anyhow!("column: car"))?
+        .ok_or(anyhow::anyhow!("expected column: car"))?
         .select(&a)
+        .map(|x| x.inner_html())
         .next()
-        .ok_or(anyhow::anyhow!("column: car in <a> element"))?
-        .inner_html()
+        .ok_or(anyhow::anyhow!("expected column: car in <a> element"))?
         .trim()
         .to_string();
-    let pts = next_inner_html(&mut cols).with_context(|| "column: pts")?;
+    let pos = next_inner_html(&mut cols).with_context(|| "column: pos")?;
+    let pts = next_inner_html(&mut cols).with_context(|| "column:pts")?;
 
-    Ok(DriverResultSummaryData {
+    Ok(DriverResultData {
+        grand_prix,
+        date,
         pos,
-        url,
-        driver,
-        nationality,
         car,
         pts,
     })
