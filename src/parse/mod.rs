@@ -4,12 +4,8 @@ use scraper::Selector;
 
 use crate::prelude::*;
 
-mod race;
-
-pub use race::parse_result;
-pub use race::parse_summary;
-pub use race::RaceResultSummaryTable;
-pub use race::RaceResultTable;
+pub mod driver;
+pub mod race;
 
 pub(crate) fn next_inner_html<'a>(i: &mut impl Iterator<Item = ElementRef<'a>>) -> Result<String> {
     let s = i

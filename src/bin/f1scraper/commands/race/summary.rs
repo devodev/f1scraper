@@ -1,7 +1,7 @@
 use crate::commands::ScrapeContext;
 use crate::prelude::*;
 
-use f1_scraper::parse::{parse_summary, RaceResultSummaryTable};
+use f1_scraper::parse::race::{parse_summary, RaceResultSummaryTable};
 use f1_scraper::scrape::{RaceResultSummaryTarget, Scraper};
 
 #[derive(Debug, clap::Args)]

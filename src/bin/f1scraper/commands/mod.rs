@@ -6,6 +6,7 @@ use f1_scraper::scrape::Scraper;
 
 use crate::prelude::*;
 
+mod driver;
 mod race;
 
 #[derive(Default)]
@@ -29,12 +30,16 @@ pub(crate) struct Args {
 pub enum Commands {
     /// Scrape races
     Race(race::Args),
+
+    /// Scrape drivers
+    Driver(driver::Args),
 }
 
 impl fmt::Display for Commands {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Commands::Race(_) => write!(f, "race"),
+            Commands::Driver(_) => write!(f, "driver"),
         }
     }
 }
@@ -44,5 +49,6 @@ pub fn process(cmd: Commands) -> Result<()> {
     let ctx = ScrapeContext::new(Scraper::new(client));
     match cmd {
         Commands::Race(args) => race::process(ctx, args.command),
+        Commands::Driver(args) => driver::process(ctx, args.command),
     }
 }

@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use crate::commands::ScrapeContext;
 use crate::prelude::*;
 
-use f1_scraper::parse::{parse_result, RaceResultTable};
+use f1_scraper::parse::race::{parse_result, RaceResultTable};
 use f1_scraper::scrape::{RaceResultTarget, Scraper};
 use f1_scraper::types::Circuit;
 
