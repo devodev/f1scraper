@@ -26,8 +26,8 @@ pub(crate) struct HtmlTable<'a> {
 
 impl<'a> HtmlTable<'a> {
     fn new(elem: ElementRef<'a>) -> Self {
-        let s_header = Selector::parse("tbody>tr").unwrap();
-        let s_content = Selector::parse("thead>tr>th").unwrap();
+        let s_content = Selector::parse("tbody>tr").unwrap();
+        let s_header = Selector::parse("thead>tr>th").unwrap();
         Self {
             inner: elem,
             s_header,
