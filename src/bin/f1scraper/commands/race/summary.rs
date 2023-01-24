@@ -2,7 +2,7 @@ use crate::commands::ScrapeContext;
 use crate::prelude::*;
 
 use f1_scraper::parse::{parse_summary, RaceResultSummaryTable};
-use f1_scraper::scrape::Scraper;
+use f1_scraper::scrape::{RaceResultSummaryTarget, Scraper};
 
 #[derive(Debug, clap::Args)]
 pub struct Args {
@@ -32,24 +32,6 @@ pub fn process(scrape_ctx: ScrapeContext, args: Args) -> Result<()> {
         print(&race_summary)?
     }
     Ok(())
-}
-
-struct RaceResultSummaryTarget {
-    url: reqwest::Url,
-}
-
-impl RaceResultSummaryTarget {
-    fn new(year: u16) -> Result<Self> {
-        let url = format!("https://www.formula1.com/en/results.html/{year}/races.html");
-        let url = reqwest::Url::parse(&url).with_context(|| format!("parse url: {}", &url))?;
-        Ok(Self { url })
-    }
-}
-
-impl f1_scraper::scrape::ScrapeTarget for RaceResultSummaryTarget {
-    fn request(&self) -> reqwest::blocking::Request {
-        reqwest::blocking::Request::new(reqwest::Method::GET, self.url.clone())
-    }
 }
 
 pub fn query_and_parse(scraper: &Scraper, year: u16) -> Result<RaceResultSummaryTable> {

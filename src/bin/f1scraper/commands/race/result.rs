@@ -5,7 +5,7 @@ use crate::commands::ScrapeContext;
 use crate::prelude::*;
 
 use f1_scraper::parse::{parse_result, RaceResultTable};
-use f1_scraper::scrape::Scraper;
+use f1_scraper::scrape::{RaceResultTarget, Scraper};
 use f1_scraper::types::Circuit;
 
 use super::summary;
@@ -79,26 +79,6 @@ pub fn process(scrape_ctx: ScrapeContext, args: Args) -> Result<()> {
         }
     }
     Ok(())
-}
-
-struct RaceResultTarget {
-    url: reqwest::Url,
-}
-
-impl RaceResultTarget {
-    fn new(year: u16, circuit: &Circuit) -> Result<Self> {
-        let circuit_idx = circuit.idx;
-        let circuit_name = &circuit.name;
-        let url = format!("https://www.formula1.com/en/results.html/{year}/races/{circuit_idx}/{circuit_name}/race-result.html");
-        let url = reqwest::Url::parse(&url).with_context(|| format!("parse url: {}", &url))?;
-        Ok(Self { url })
-    }
-}
-
-impl f1_scraper::scrape::ScrapeTarget for RaceResultTarget {
-    fn request(&self) -> reqwest::blocking::Request {
-        reqwest::blocking::Request::new(reqwest::Method::GET, self.url.clone())
-    }
 }
 
 fn query_and_parse(scraper: &Scraper, year: u16, circuit: &Circuit) -> Result<RaceResultTable> {

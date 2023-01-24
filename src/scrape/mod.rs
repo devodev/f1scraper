@@ -2,6 +2,11 @@ use log::debug;
 
 use anyhow::{Context, Result};
 
+mod race;
+
+pub use race::RaceResultSummaryTarget;
+pub use race::RaceResultTarget;
+
 pub trait ScrapeTarget {
     fn request(&self) -> reqwest::blocking::Request;
 }
