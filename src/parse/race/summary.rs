@@ -3,7 +3,7 @@ use scraper::element_ref::Select;
 use scraper::{ElementRef, Html, Selector};
 use selectors::attr::CaseSensitivity;
 
-use crate::parse::{inner_html_to_string, HtmlTable};
+use crate::parse::{next_inner_html, HtmlTable};
 use crate::prelude::*;
 use crate::types::{RaceResultSummaryData, RaceResultSummaryHeaders, Table};
 
@@ -21,13 +21,13 @@ pub fn parse(html: &str, year: u16) -> Result<RaceResultSummaryTable> {
     let table = HtmlTable::parse(&document_root, TABLE_SELECTOR_STR)?;
 
     // parse headers from table
-    let headers = parse_headers(table.headers())?;
+    let headers = parse_headers(table.headers()).with_context(|| "parse table headers")?;
 
     // parse content
-    let content: Result<Vec<_>, _> = table.rows().map(|r| parse_row(&r)).collect();
-    let content = content?;
+    let data: Result<Vec<_>, _> = table.rows().map(|r| parse_row(&r)).collect();
+    let data = data.with_context(|| "parse table rows")?;
 
-    Ok(Table::new(year, headers, content))
+    Ok(Table::new(year, headers, data))
 }
 
 fn parse_headers(s: Select) -> Result<RaceResultSummaryHeaders> {
@@ -82,7 +82,7 @@ fn parse_row(row: &ElementRef) -> Result<RaceResultSummaryData> {
         .to_string();
 
     let grand_prix = grand_prix_col.inner_html().trim().to_string();
-    let date = inner_html_to_string(&mut cols).with_context(|| "column: date")?;
+    let date = next_inner_html(&mut cols).with_context(|| "column: date")?;
     let winner = cols
         .next()
         .ok_or(anyhow::anyhow!("expected column: winner"))?
@@ -92,9 +92,9 @@ fn parse_row(row: &ElementRef) -> Result<RaceResultSummaryData> {
         .join(" ")
         .trim()
         .to_string();
-    let car = inner_html_to_string(&mut cols).with_context(|| "column: car")?;
-    let laps = inner_html_to_string(&mut cols).with_context(|| "column: laps")?;
-    let time = inner_html_to_string(&mut cols).with_context(|| "column: time")?;
+    let car = next_inner_html(&mut cols).with_context(|| "column: car")?;
+    let laps = next_inner_html(&mut cols).with_context(|| "column: laps")?;
+    let time = next_inner_html(&mut cols).with_context(|| "column: time")?;
 
     Ok(RaceResultSummaryData {
         grand_prix,

@@ -3,7 +3,7 @@ use scraper::element_ref::Select;
 use scraper::{ElementRef, Html, Selector};
 use selectors::attr::CaseSensitivity;
 
-use crate::parse::{inner_html_to_string, HtmlTable};
+use crate::parse::{next_inner_html, HtmlTable};
 use crate::prelude::*;
 use crate::types::{Circuit, RaceResultData, RaceResultHeaders, Table};
 
@@ -20,13 +20,13 @@ pub fn parse(html: &str, year: u16, circuit: &Circuit) -> Result<RaceResultTable
     let table = HtmlTable::parse(&document_root, TABLE_SELECTOR_STR)?;
 
     // parse headers from table
-    let headers = parse_headers(table.headers())?;
+    let headers = parse_headers(table.headers()).with_context(|| "parse table headers")?;
 
     // parse content
-    let content: Result<Vec<_>, _> = table.rows().map(|r| parse_row(&r)).collect();
-    let content = content?;
+    let data: Result<Vec<_>, _> = table.rows().map(|r| parse_row(&r)).collect();
+    let data = data.with_context(|| "parse table rows")?;
 
-    Ok(Table::new(year, headers, content).with_circuit(circuit.clone()))
+    Ok(Table::new(year, headers, data).with_circuit(circuit.clone()))
 }
 
 fn parse_headers(s: Select) -> Result<RaceResultHeaders> {
@@ -69,8 +69,8 @@ fn parse_row(row: &ElementRef) -> Result<RaceResultData> {
             .has_class("limiter", CaseSensitivity::AsciiCaseInsensitive)
     });
 
-    let pos = inner_html_to_string(&mut cols).with_context(|| "column: pos")?;
-    let no = inner_html_to_string(&mut cols).with_context(|| "column: no")?;
+    let pos = next_inner_html(&mut cols).with_context(|| "column: pos")?;
+    let no = next_inner_html(&mut cols).with_context(|| "column: no")?;
     let driver = cols
         .next()
         .ok_or(anyhow::anyhow!("expected column: driver"))?
@@ -80,10 +80,10 @@ fn parse_row(row: &ElementRef) -> Result<RaceResultData> {
         .join(" ")
         .trim()
         .to_string();
-    let car = inner_html_to_string(&mut cols).with_context(|| "column: car")?;
-    let laps = inner_html_to_string(&mut cols).with_context(|| "column: laps")?;
-    let time_retired = inner_html_to_string(&mut cols).with_context(|| "column: time_retired")?;
-    let pts = inner_html_to_string(&mut cols).with_context(|| "column:pts")?;
+    let car = next_inner_html(&mut cols).with_context(|| "column: car")?;
+    let laps = next_inner_html(&mut cols).with_context(|| "column: laps")?;
+    let time_retired = next_inner_html(&mut cols).with_context(|| "column: time_retired")?;
+    let pts = next_inner_html(&mut cols).with_context(|| "column:pts")?;
 
     Ok(RaceResultData {
         pos,
