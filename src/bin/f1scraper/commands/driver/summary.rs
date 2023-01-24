@@ -1,5 +1,5 @@
 use crate::commands::ScrapeContext;
-use crate::{prelude::*, YearArgs};
+use crate::{prelude::*, YearFlags};
 
 use f1_scraper::parse::driver::{parse_summary, DriverResultSummaryTable};
 use f1_scraper::scrape::{DriverResultSummaryTarget, Scraper};
@@ -7,19 +7,19 @@ use f1_scraper::scrape::{DriverResultSummaryTarget, Scraper};
 #[derive(Debug, clap::Args)]
 pub struct Args {
     #[command(flatten)]
-    year_args: YearArgs,
+    year_flags: YearFlags,
 }
 
 pub fn process(scrape_ctx: ScrapeContext, args: Args) -> Result<()> {
     // exact year takes precedence
-    if let Some(year) = args.year_args.year {
+    if let Some(year) = args.year_flags.year {
         let driver_summary = query_and_parse(&scrape_ctx.scraper, year)?;
         print(&driver_summary)?;
         return Ok(());
     }
 
     // range of years
-    for year in args.year_args.year_min..=args.year_args.year_max {
+    for year in args.year_flags.year_min..=args.year_flags.year_max {
         let driver_summary = query_and_parse(&scrape_ctx.scraper, year)?;
         print(&driver_summary)?
     }

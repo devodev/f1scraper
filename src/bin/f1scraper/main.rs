@@ -23,15 +23,16 @@ struct Cli {
 }
 
 #[derive(Debug, clap::Args)]
-pub struct YearArgs {
+pub struct YearFlags {
     /// Only scrape the page for the provided year
+    #[arg(short, long)]
     year: Option<u16>,
 
-    /// Minimim year to use when scraping race pages
+    /// Minimim year to use when scraping pages
     #[arg(long, default_value_t = 1950)]
     year_min: u16,
 
-    /// Maximum year to use when scraping race pages
+    /// Maximum year to use when scraping pages
     #[arg(long, default_value_t = 2023)]
     year_max: u16,
 }
