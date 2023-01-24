@@ -1,5 +1,6 @@
-use anyhow::{Context, Result};
 use log::debug;
+
+use anyhow::{Context, Result};
 
 pub trait ScrapeTarget {
     fn request(&self) -> reqwest::blocking::Request;

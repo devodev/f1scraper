@@ -1,3 +1,4 @@
+use log::debug;
 use std::collections::HashMap;
 
 use crate::commands::ScrapeContext;
@@ -6,7 +7,6 @@ use crate::prelude::*;
 use f1_scraper::parse::{parse_result, RaceResultTable};
 use f1_scraper::scrape::Scraper;
 use f1_scraper::types::Circuit;
-use log::debug;
 
 use super::summary;
 
