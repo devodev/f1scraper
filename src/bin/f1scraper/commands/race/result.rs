@@ -36,6 +36,7 @@ pub fn process(scrape_ctx: ScrapeContext, args: Args) -> Result<()> {
     }
 
     for year in year_min..=year_max {
+        // query summary to obtain the list of available circuits
         let summary = summary::query_and_parse(&scrape_ctx.scraper, year)?;
 
         // retrieve circuits
