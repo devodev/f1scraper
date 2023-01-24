@@ -2,9 +2,9 @@ use anyhow::Context;
 use scraper::{ElementRef, Html, Selector};
 use selectors::attr::CaseSensitivity;
 
-use crate::format::{Circuit, RaceResultData, RaceResultHeaders, Table};
 use crate::parse::inner_html_to_string;
 use crate::prelude::*;
+use crate::types::{Circuit, RaceResultData, RaceResultHeaders, Table};
 
 pub type RaceResultTable = Table<RaceResultHeaders, RaceResultData>;
 
