@@ -17,9 +17,23 @@ struct Cli {
     #[command(subcommand)]
     command: commands::Commands,
 
-    /// Enable debug logging.
-    #[arg(short, long)]
-    verbose: bool,
+    /// Enable debug logging
+    #[arg(long, short = 'v', action = clap::ArgAction::Count)]
+    verbose: u8,
+}
+
+#[derive(Debug, clap::Args)]
+pub struct YearArgs {
+    /// Only scrape the page for the provided year
+    year: Option<u16>,
+
+    /// Minimim year to use when scraping race pages
+    #[arg(long, default_value_t = 1950)]
+    year_min: u16,
+
+    /// Maximum year to use when scraping race pages
+    #[arg(long, default_value_t = 2023)]
+    year_max: u16,
 }
 
 fn main() -> Result<()> {
@@ -41,9 +55,14 @@ fn main() -> Result<()> {
         writeln!(buf, " {}", record.args())?;
         Ok(())
     });
-    logger_builder.filter_level(log::LevelFilter::Info);
-    if cli.verbose {
+    if cli.verbose == 1 {
+        logger_builder.filter_level(log::LevelFilter::Info);
+    }
+    if cli.verbose == 2 {
         logger_builder.filter_level(log::LevelFilter::Debug);
+    }
+    if cli.verbose > 2 {
+        logger_builder.filter_level(log::LevelFilter::Trace);
     }
     logger_builder.init();
 

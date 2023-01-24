@@ -1,33 +1,25 @@
 use crate::commands::ScrapeContext;
-use crate::prelude::*;
+use crate::{prelude::*, YearArgs};
 
 use f1_scraper::parse::race::{parse_summary, RaceResultSummaryTable};
 use f1_scraper::scrape::{RaceResultSummaryTarget, Scraper};
 
 #[derive(Debug, clap::Args)]
 pub struct Args {
-    /// Only scrape the page for the provided year
-    year: Option<u16>,
-
-    /// Minimim year to use when scraping race pages
-    #[arg(long, default_value_t = 1950)]
-    year_min: u16,
-
-    /// Maximum year to use when scraping race pages
-    #[arg(long, default_value_t = 2023)]
-    year_max: u16,
+    #[command(flatten)]
+    year_args: YearArgs,
 }
 
 pub fn process(scrape_ctx: ScrapeContext, args: Args) -> Result<()> {
     // exact year takes precedence
-    if let Some(year) = args.year {
+    if let Some(year) = args.year_args.year {
         let race_summary = query_and_parse(&scrape_ctx.scraper, year)?;
         print(&race_summary)?;
         return Ok(());
     }
 
     // range of years
-    for year in args.year_min..=args.year_max {
+    for year in args.year_args.year_min..=args.year_args.year_max {
         let race_summary = query_and_parse(&scrape_ctx.scraper, year)?;
         print(&race_summary)?
     }

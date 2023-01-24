@@ -2,7 +2,7 @@ use log::debug;
 use std::collections::HashMap;
 
 use crate::commands::ScrapeContext;
-use crate::prelude::*;
+use crate::{prelude::*, YearArgs};
 
 use f1_scraper::parse::race::{parse_result, RaceResultTable};
 use f1_scraper::scrape::{RaceResultTarget, Scraper};
@@ -12,25 +12,17 @@ use super::summary;
 
 #[derive(Debug, clap::Args)]
 pub struct Args {
-    /// Only scrape the page for the provided year
-    year: Option<u16>,
+    #[command(flatten)]
+    year_args: YearArgs,
 
     /// The name of the Grand Prix
     circuit_name: Option<String>,
-
-    /// Minimim year to use when scraping race pages
-    #[arg(long, default_value_t = 1950)]
-    year_min: u16,
-
-    /// Maximum year to use when scraping race pages
-    #[arg(long, default_value_t = 2023)]
-    year_max: u16,
 }
 
 pub fn process(scrape_ctx: ScrapeContext, args: Args) -> Result<()> {
-    let mut year_min = args.year_min;
-    let mut year_max = args.year_max;
-    if let Some(year) = args.year {
+    let mut year_min = args.year_args.year_min;
+    let mut year_max = args.year_args.year_max;
+    if let Some(year) = args.year_args.year {
         year_min = year;
         year_max = year;
     }
