@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::commands::scrape::ScrapeContext;
+use crate::commands::ScrapeContext;
 use crate::prelude::*;
 
 use f1_scraper::format::Circuit;
@@ -65,7 +65,7 @@ pub fn process(scrape_ctx: ScrapeContext, args: Args) -> Result<()> {
             let circuit = circuit_name_indexes
                 .iter()
                 .filter_map(|index| index.get(circuit_name))
-                .nth(0)
+                .next()
                 .ok_or(anyhow::anyhow!(
                     "find grand prix for year `{}` with name: {}",
                     year,
@@ -104,11 +104,11 @@ impl f1_scraper::scrape::ScrapeTarget for RaceResultTarget {
 fn query_and_parse(scraper: &Scraper, year: u16, circuit: &Circuit) -> Result<RaceResultTable> {
     // create scrape target
     let target = RaceResultTarget::new(year, circuit)
-        .with_context(|| format!("create scrape target: race result {}", year))?;
+        .with_context(|| format!("create scrape target: race result {year}"))?;
     // run scrape
     let html = scraper
         .scrape(target)
-        .with_context(|| format!("scrape: race result {}", year))?;
+        .with_context(|| format!("scrape: race result {year}"))?;
 
     // parse html text as race result
     let race_result = parse_result(&html, year, &circuit.clone())?;
@@ -120,12 +120,12 @@ fn print(race_result: &RaceResultTable) -> Result<()> {
     let circuit_name = race_result
         .circuit
         .as_ref()
-        .and_then(|c| Some(&c.name))
+        .map(|c| &c.name)
         .unwrap_or(&default_value);
     let circuit_display_name = race_result
         .circuit
         .as_ref()
-        .and_then(|c| Some(&c.display_name))
+        .map(|c| &c.display_name)
         .unwrap_or(&default_value);
     let prefix = format!(
         "[{}][{} ({})]",
@@ -133,7 +133,7 @@ fn print(race_result: &RaceResultTable) -> Result<()> {
     );
     println!("{} {:?}", prefix, race_result.headers);
     for row in race_result.data.iter() {
-        println!("{} {:?}", prefix, row);
+        println!("{prefix} {row:?}");
     }
     Ok(())
 }

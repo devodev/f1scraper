@@ -13,10 +13,10 @@ pub struct Args {
 
 #[derive(Debug, clap::Subcommand)]
 pub enum Commands {
-    /// Scrape Race Summaries
+    /// Scrape race summaries
     Summary(summary::Args),
 
-    /// Scrape Race Result
+    /// Scrape race results
     Result(result::Args),
 }
 

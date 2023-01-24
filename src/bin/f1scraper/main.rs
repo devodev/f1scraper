@@ -36,7 +36,7 @@ fn main() -> Result<()> {
         )?;
         write!(buf, "[{}]", record.level())?;
         if let Some(path) = record.module_path() {
-            write!(buf, "[{}]", path)?;
+            write!(buf, "[{path}]")?;
         };
         writeln!(buf, " {}", record.args())?;
         Ok(())
@@ -49,5 +49,5 @@ fn main() -> Result<()> {
 
     // Run command
     let cmd_name = cli.command.to_string();
-    commands::process(cli.command).with_context(|| format!("process command `{}`", cmd_name))
+    commands::process(cli.command).with_context(|| format!("process command `{cmd_name}`"))
 }

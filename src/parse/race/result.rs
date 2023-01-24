@@ -10,7 +10,7 @@ pub type RaceResultTable = Table<RaceResultHeaders, RaceResultData>;
 
 pub fn parse(html: &str, year: u16, circuit: &Circuit) -> Result<RaceResultTable> {
     // parse html
-    let document = Html::parse_document(&html);
+    let document = Html::parse_document(html);
 
     // select table
     let table_selector =
@@ -71,13 +71,10 @@ fn parse_data(row: &ElementRef) -> Result<RaceResultData> {
     let td = Selector::parse("td").unwrap();
     let span = Selector::parse("span").unwrap();
 
-    let mut cols = row
-        .select(&td)
-        .filter(|row| {
-            !row.value()
-                .has_class("limiter", CaseSensitivity::AsciiCaseInsensitive)
-        })
-        .into_iter();
+    let mut cols = row.select(&td).filter(|row| {
+        !row.value()
+            .has_class("limiter", CaseSensitivity::AsciiCaseInsensitive)
+    });
 
     let pos = inner_html_to_string(&mut cols).with_context(|| "column: pos")?;
     let no = inner_html_to_string(&mut cols).with_context(|| "column: no")?;

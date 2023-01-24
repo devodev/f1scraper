@@ -25,7 +25,7 @@ impl Scraper {
         let response = self
             .client
             .execute(req)
-            .with_context(|| format!("execute scrape request: {}", url))?;
+            .with_context(|| format!("execute scrape request: {url}"))?;
 
         debug!(
             "[{}] Response: {:?} {}",
@@ -47,7 +47,7 @@ impl Scraper {
         // return body
         let text = response
             .text()
-            .with_context(|| format!("parse scrape response as text: {}", url))?;
+            .with_context(|| format!("parse scrape response as text: {url}"))?;
         Ok(text)
     }
 }

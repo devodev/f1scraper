@@ -2,9 +2,22 @@ use std::fmt;
 
 use clap::Subcommand;
 
+use f1_scraper::scrape::Scraper;
+
 use crate::prelude::*;
 
-mod scrape;
+mod race;
+
+#[derive(Default)]
+pub struct ScrapeContext {
+    scraper: Scraper,
+}
+
+impl ScrapeContext {
+    fn new(scraper: Scraper) -> Self {
+        Self { scraper }
+    }
+}
 
 #[derive(Debug, clap::Args)]
 pub(crate) struct Args {
@@ -14,20 +27,22 @@ pub(crate) struct Args {
 
 #[derive(Debug, Subcommand)]
 pub enum Commands {
-    /// Scrape commands
-    Scrape(scrape::Args),
+    /// Scrape races
+    Race(race::Args),
 }
 
 impl fmt::Display for Commands {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Commands::Scrape(_) => write!(f, "scrape"),
+            Commands::Race(_) => write!(f, "race"),
         }
     }
 }
 
 pub fn process(cmd: Commands) -> Result<()> {
+    let client = reqwest::blocking::Client::new();
+    let ctx = ScrapeContext::new(Scraper::new(client));
     match cmd {
-        Commands::Scrape(args) => scrape::process(args.command),
+        Commands::Race(args) => race::process(ctx, args.command),
     }
 }

@@ -1,4 +1,4 @@
-use crate::commands::scrape::ScrapeContext;
+use crate::commands::ScrapeContext;
 use crate::prelude::*;
 
 use f1_scraper::parse::{parse_summary, RaceResultSummaryTable};
@@ -55,11 +55,11 @@ impl f1_scraper::scrape::ScrapeTarget for RaceResultSummaryTarget {
 pub fn query_and_parse(scraper: &Scraper, year: u16) -> Result<RaceResultSummaryTable> {
     // create scrape target
     let target = RaceResultSummaryTarget::new(year)
-        .with_context(|| format!("create scrape target: race result summary {}", year))?;
+        .with_context(|| format!("create scrape target: race result summary {year}"))?;
     // run scrape
     let html = scraper
         .scrape(target)
-        .with_context(|| format!("scrape: race result summary {}", year))?;
+        .with_context(|| format!("scrape: race result summary {year}"))?;
 
     // parse html text as race summary
     let race_summary = parse_summary(&html, year)?;
@@ -69,7 +69,7 @@ pub fn query_and_parse(scraper: &Scraper, year: u16) -> Result<RaceResultSummary
 fn print(race_summary: &RaceResultSummaryTable) -> Result<()> {
     println!("{:?}", race_summary.headers);
     for row in race_summary.data.iter() {
-        println!("{:?}", row);
+        println!("{row:?}");
     }
     Ok(())
 }

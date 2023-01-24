@@ -26,7 +26,7 @@ impl<Headers: Debug, Data: Debug> Table<Headers, Data> {
         Self {
             year: year.into(),
             circuit: None,
-            headers: headers,
+            headers,
             data: data.into(),
         }
     }
@@ -101,7 +101,7 @@ impl RaceResultSummaryData {
     pub fn circuit(&self) -> Result<Circuit> {
         // Example:
         //   /en/results.html/1950/races/100/italy/race-result.html
-        let tokens: Vec<_> = self.url.split("/").skip(5).take(2).collect();
+        let tokens: Vec<_> = self.url.split('/').skip(5).take(2).collect();
         if tokens.len() != 2 {
             return Err(anyhow::anyhow!(
                 "can't parse url: invalid format: {}",
