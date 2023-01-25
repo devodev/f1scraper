@@ -4,11 +4,14 @@ use anyhow::{Context, Result};
 
 mod driver;
 mod race;
+mod team;
 
 pub use driver::DriverResultSummaryTarget;
 pub use driver::DriverResultTarget;
 pub use race::RaceResultSummaryTarget;
 pub use race::RaceResultTarget;
+pub use team::TeamResultSummaryTarget;
+pub use team::TeamResultTarget;
 
 pub trait ScrapeTarget {
     fn request(&self) -> reqwest::blocking::Request;

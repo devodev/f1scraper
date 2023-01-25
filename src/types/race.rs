@@ -75,6 +75,7 @@ pub struct FastestLap {
     pub lap: String,
     pub time: String,
 }
+
 #[derive(Default, Debug)]
 pub struct Qualifying {
     pub pos: String,

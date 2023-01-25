@@ -6,6 +6,7 @@ use crate::prelude::*;
 
 pub mod driver;
 pub mod race;
+pub mod team;
 
 pub(crate) fn next_inner_html<'a>(i: &mut impl Iterator<Item = ElementRef<'a>>) -> Result<String> {
     let s = i
