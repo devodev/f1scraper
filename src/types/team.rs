@@ -29,7 +29,7 @@ impl TeamSummary {
             ));
         }
 
-        let name = tokens[1].trim_end_matches(".html");
+        let name = tokens[0].trim_end_matches(".html");
 
         Ok(Team::new(name, &self.team))
     }

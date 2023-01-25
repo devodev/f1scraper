@@ -8,6 +8,7 @@ mod team;
 
 pub use driver::DriverResultSummaryTarget;
 pub use driver::DriverResultTarget;
+use log::info;
 pub use race::RaceResultSummaryTarget;
 pub use race::RaceResultTarget;
 pub use team::TeamResultSummaryTarget;
@@ -33,13 +34,13 @@ impl Scraper {
         let req = target.request();
         let url = &req.url().clone();
 
-        debug!("[{}] Executing reqwest", url);
+        info!("[{}] Executing reqwest", url);
         let response = self
             .client
             .execute(req)
             .with_context(|| format!("execute scrape request: {url}"))?;
 
-        debug!(
+        info!(
             "[{}] Response: {:?} {}",
             url,
             response.version(),
