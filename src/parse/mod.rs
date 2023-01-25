@@ -20,17 +20,14 @@ pub(crate) fn next_inner_html<'a>(i: &mut impl Iterator<Item = ElementRef<'a>>) 
 pub(crate) struct HtmlTable<'a> {
     inner: ElementRef<'a>,
 
-    s_header: Selector,
     s_content: Selector,
 }
 
 impl<'a> HtmlTable<'a> {
     fn new(elem: ElementRef<'a>) -> Self {
         let s_content = Selector::parse("tbody>tr").unwrap();
-        let s_header = Selector::parse("thead>tr>th").unwrap();
         Self {
             inner: elem,
-            s_header,
             s_content,
         }
     }
@@ -45,10 +42,6 @@ impl<'a> HtmlTable<'a> {
             .next()
             .with_context(|| format!("selecting table at: `{selectors}`"))?;
         Ok(Self::new(inner))
-    }
-
-    pub(crate) fn headers(&self) -> Select {
-        return self.inner.select(&self.s_header);
     }
 
     pub(crate) fn rows(&self) -> Select {

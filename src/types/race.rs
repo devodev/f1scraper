@@ -2,52 +2,8 @@ use std::fmt::Debug;
 
 use crate::prelude::*;
 
-use super::DriverFragment;
-
 #[derive(Default, Debug)]
-pub struct Race {
-    pub name: String,
-    pub circuit: String,
-    pub date: String,
-
-    pub race_results: Vec<Table<RaceResultHeaders, RaceResultData>>,
-    pub fastest_laps: Vec<FastestLap>,
-    pub qualifyings: Vec<Qualifying>,
-}
-
-#[derive(Default, Debug)]
-pub struct Table<Headers: Debug, Data: Debug> {
-    pub year: u16,
-    pub circuit: Option<Circuit>,
-    pub driver: Option<DriverFragment>,
-    pub headers: Headers,
-    pub data: Vec<Data>,
-}
-
-impl<Headers: Debug, Data: Debug> Table<Headers, Data> {
-    pub fn new<U: Into<u16>, D: Into<Vec<Data>>>(year: U, headers: Headers, data: D) -> Self {
-        Self {
-            year: year.into(),
-            circuit: None,
-            driver: None,
-            headers,
-            data: data.into(),
-        }
-    }
-
-    pub fn with_circuit<S: Into<Circuit>>(mut self, circuit: S) -> Self {
-        self.circuit = Some(circuit.into());
-        self
-    }
-
-    pub fn with_driver<S: Into<DriverFragment>>(mut self, driver: S) -> Self {
-        self.driver = Some(driver.into());
-        self
-    }
-}
-
-#[derive(Default, Debug)]
-pub struct RaceResultData {
+pub struct RaceResult {
     pub pos: String,
     pub no: String,
     pub driver: String,
@@ -58,28 +14,7 @@ pub struct RaceResultData {
 }
 
 #[derive(Default, Debug)]
-pub struct RaceResultHeaders {
-    pub pos: String,
-    pub no: String,
-    pub driver: String,
-    pub car: String,
-    pub laps: String,
-    pub time_retired: String,
-    pub pts: String,
-}
-
-#[derive(Default, Debug)]
-pub struct RaceResultSummaryHeaders {
-    pub grand_prix: String,
-    pub date: String,
-    pub winner: String,
-    pub car: String,
-    pub laps: String,
-    pub time: String,
-}
-
-#[derive(Default, Debug)]
-pub struct RaceResultSummaryData {
+pub struct RaceSummary {
     pub grand_prix: String,
     pub url: String,
     pub date: String,
@@ -89,24 +24,7 @@ pub struct RaceResultSummaryData {
     pub time: String,
 }
 
-#[derive(Default, Debug, Clone)]
-pub struct Circuit {
-    pub idx: u16,
-    pub name: String,
-    pub display_name: String,
-}
-
-impl Circuit {
-    fn new<S: Into<String>>(idx: u16, name: S, display_name: S) -> Self {
-        Self {
-            idx,
-            name: name.into(),
-            display_name: display_name.into(),
-        }
-    }
-}
-
-impl RaceResultSummaryData {
+impl RaceSummary {
     pub fn circuit(&self) -> Result<Circuit> {
         // Example:
         //   /en/results.html/1950/races/100/italy/race-result.html
@@ -128,6 +46,23 @@ impl RaceResultSummaryData {
         let name = tokens[1];
 
         Ok(Circuit::new(idx, name, &self.grand_prix))
+    }
+}
+
+#[derive(Default, Debug, Clone)]
+pub struct Circuit {
+    pub idx: u16,
+    pub name: String,
+    pub display_name: String,
+}
+
+impl Circuit {
+    fn new<S: Into<String>>(idx: u16, name: S, display_name: S) -> Self {
+        Self {
+            idx,
+            name: name.into(),
+            display_name: display_name.into(),
+        }
     }
 }
 

@@ -1,7 +1,7 @@
 use log::debug;
 use std::collections::HashMap;
 
-use f1scraper::parse::driver::{parse_result, DriverResultTable};
+use f1scraper::parse::driver::{parse_result, ParsedDriverResult};
 use f1scraper::scrape::{DriverResultTarget, Scraper};
 use f1scraper::types::DriverFragment;
 
@@ -78,7 +78,7 @@ fn query_and_parse(
     scraper: &Scraper,
     year: u16,
     driver: &DriverFragment,
-) -> Result<DriverResultTable> {
+) -> Result<ParsedDriverResult> {
     // create scrape target
     let target = DriverResultTarget::new(year, driver)
         .with_context(|| format!("create scrape target: driver result {year}"))?;
@@ -92,23 +92,21 @@ fn query_and_parse(
     Ok(driver_result)
 }
 
-fn print(driver_result: &DriverResultTable) -> Result<()> {
+fn print(driver_result: &ParsedDriverResult) -> Result<()> {
     let default_value = "-".to_string();
-    let driver_name = driver_result
-        .driver
-        .as_ref()
-        .map(|c| &c.name)
-        .unwrap_or(&default_value);
-    let driver_display_name = driver_result
-        .driver
-        .as_ref()
-        .map(|c| &c.display_name)
-        .unwrap_or(&default_value);
+    let mut driver_name = &driver_result.driver.name;
+    if driver_name.is_empty() {
+        driver_name = &default_value;
+    }
+    let mut driver_display_name = &driver_result.driver.display_name;
+    if driver_display_name.is_empty() {
+        driver_display_name = &default_value;
+    }
+
     let prefix = format!(
         "[{}][{} ({})]",
         driver_result.year, driver_display_name, driver_name
     );
-    println!("{} {:?}", prefix, driver_result.headers);
     for row in driver_result.data.iter() {
         println!("{prefix} {row:?}");
     }

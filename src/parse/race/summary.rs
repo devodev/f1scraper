@@ -1,18 +1,20 @@
 use anyhow::Context;
-use scraper::element_ref::Select;
 use scraper::{ElementRef, Html, Selector};
 use selectors::attr::CaseSensitivity;
 
 use crate::parse::{next_inner_html, HtmlTable};
 use crate::prelude::*;
-use crate::types::{RaceResultSummaryData, RaceResultSummaryHeaders, Table};
-
-pub type RaceResultSummaryTable = Table<RaceResultSummaryHeaders, RaceResultSummaryData>;
+use crate::types::RaceSummary;
 
 const TABLE_SELECTOR_STR: &str =
     "div.resultsarchive-content>div.table-wrap>table.resultsarchive-table";
 
-pub fn parse(html: &str, year: u16) -> Result<RaceResultSummaryTable> {
+pub struct ParsedRaceSummary {
+    pub year: u16,
+    pub data: Vec<RaceSummary>,
+}
+
+pub fn parse(html: &str, year: u16) -> Result<ParsedRaceSummary> {
     // parse html
     let document = Html::parse_document(html);
     let document_root = document.root_element();
@@ -20,40 +22,14 @@ pub fn parse(html: &str, year: u16) -> Result<RaceResultSummaryTable> {
     // select table
     let table = HtmlTable::parse(&document_root, TABLE_SELECTOR_STR)?;
 
-    // parse headers from table
-    let headers = parse_headers(table.headers()).with_context(|| "parse table headers")?;
-
-    // parse content
+    // parse rows
     let data: Result<Vec<_>, _> = table.rows().map(|r| parse_row(&r)).collect();
     let data = data.with_context(|| "parse table rows")?;
 
-    Ok(Table::new(year, headers, data))
+    Ok(ParsedRaceSummary { year, data })
 }
 
-fn parse_headers(s: Select) -> Result<RaceResultSummaryHeaders> {
-    let headers: Vec<String> = s
-        .filter(|col| {
-            !col.value()
-                .has_class("limiter", CaseSensitivity::AsciiCaseInsensitive)
-        })
-        .map(|x| x.inner_html())
-        .collect();
-    let header_count = headers.len();
-    if header_count != 6 {
-        return Err(anyhow::anyhow!("invalid header count: {header_count}"));
-    }
-
-    Ok(RaceResultSummaryHeaders {
-        grand_prix: headers[0].to_owned(),
-        date: headers[1].to_owned(),
-        winner: headers[2].to_owned(),
-        car: headers[3].to_owned(),
-        laps: headers[4].to_owned(),
-        time: headers[5].to_owned(),
-    })
-}
-
-fn parse_row(row: &ElementRef) -> Result<RaceResultSummaryData> {
+fn parse_row(row: &ElementRef) -> Result<RaceSummary> {
     let a = Selector::parse("a").unwrap();
     let td = Selector::parse("td").unwrap();
     let span = Selector::parse("span").unwrap();
@@ -96,7 +72,7 @@ fn parse_row(row: &ElementRef) -> Result<RaceResultSummaryData> {
     let laps = next_inner_html(&mut cols).with_context(|| "column: laps")?;
     let time = next_inner_html(&mut cols).with_context(|| "column: time")?;
 
-    Ok(RaceResultSummaryData {
+    Ok(RaceSummary {
         grand_prix,
         url,
         date,

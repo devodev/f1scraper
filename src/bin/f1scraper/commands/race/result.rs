@@ -1,7 +1,7 @@
 use log::debug;
 use std::collections::HashMap;
 
-use f1scraper::parse::race::{parse_result, RaceResultTable};
+use f1scraper::parse::race::{parse_result, ParsedRaceResult};
 use f1scraper::scrape::{RaceResultTarget, Scraper};
 use f1scraper::types::Circuit;
 
@@ -74,7 +74,7 @@ pub fn process(scrape_ctx: ScrapeContext, args: Args) -> Result<()> {
     Ok(())
 }
 
-fn query_and_parse(scraper: &Scraper, year: u16, circuit: &Circuit) -> Result<RaceResultTable> {
+fn query_and_parse(scraper: &Scraper, year: u16, circuit: &Circuit) -> Result<ParsedRaceResult> {
     // create scrape target
     let target = RaceResultTarget::new(year, circuit)
         .with_context(|| format!("create scrape target: race result {year}"))?;
@@ -88,23 +88,21 @@ fn query_and_parse(scraper: &Scraper, year: u16, circuit: &Circuit) -> Result<Ra
     Ok(race_result)
 }
 
-fn print(race_result: &RaceResultTable) -> Result<()> {
+fn print(race_result: &ParsedRaceResult) -> Result<()> {
     let default_value = "-".to_string();
-    let circuit_name = race_result
-        .circuit
-        .as_ref()
-        .map(|c| &c.name)
-        .unwrap_or(&default_value);
-    let circuit_display_name = race_result
-        .circuit
-        .as_ref()
-        .map(|c| &c.display_name)
-        .unwrap_or(&default_value);
+    let mut circuit_name = &race_result.circuit.name;
+    if circuit_name.is_empty() {
+        circuit_name = &default_value;
+    }
+    let mut circuit_display_name = &race_result.circuit.display_name;
+    if circuit_display_name.is_empty() {
+        circuit_display_name = &default_value;
+    }
+
     let prefix = format!(
         "[{}][{} ({})]",
         race_result.year, circuit_display_name, circuit_name
     );
-    println!("{} {:?}", prefix, race_result.headers);
     for row in race_result.data.iter() {
         println!("{prefix} {row:?}");
     }
