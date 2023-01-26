@@ -17,7 +17,7 @@ pub struct DriverResult {
 impl DriverResult {
     const TABLE_SELECTOR_STR: &str = "div.resultsarchive-wrapper>div.resultsarchive-content>div.table-wrap>table.resultsarchive-table";
 
-    pub fn parse(html: &str, year: u16, driver: &DriverFragment) -> Result<DriverResult> {
+    pub fn parse(html: &str, year: u16, driver: &DriverFragment) -> Result<Self> {
         // parse html
         let document = Html::parse_document(html);
         let document_root = document.root_element();
@@ -29,7 +29,7 @@ impl DriverResult {
         let data: Result<Vec<_>, _> = table.rows().map(|r| DriverResultEntry::parse(&r)).collect();
         let data = data.with_context(|| "parse table rows")?;
 
-        Ok(DriverResult {
+        Ok(Self {
             year,
             driver: driver.clone(),
             data,
@@ -100,7 +100,7 @@ impl DriverSummary {
     const TABLE_SELECTOR_STR: &str =
     "div.resultsarchive-wrapper>div.resultsarchive-content>div.table-wrap>table.resultsarchive-table";
 
-    pub fn parse(html: &str, year: u16) -> Result<DriverSummary> {
+    pub fn parse(html: &str, year: u16) -> Result<Self> {
         // parse html
         let document = Html::parse_document(html);
         let document_root = document.root_element();
@@ -115,7 +115,7 @@ impl DriverSummary {
             .collect();
         let data = data.with_context(|| "parse table rows")?;
 
-        Ok(DriverSummary { year, data })
+        Ok(Self { year, data })
     }
 }
 
