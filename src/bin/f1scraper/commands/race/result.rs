@@ -1,7 +1,6 @@
 use log::debug;
 use std::collections::HashMap;
 
-use f1scraper::parse::race::parse_result;
 use f1scraper::scrape::{RaceResultTarget, Scraper};
 use f1scraper::types::{Circuit, RaceResult};
 
@@ -79,7 +78,7 @@ fn query_and_parse(scraper: &Scraper, year: u16, circuit: &Circuit) -> Result<Ra
         .with_context(|| format!("scrape: race result {year}"))?;
 
     // parse html text as race result
-    let race_result = parse_result(&html, year, &circuit.clone())?;
+    let race_result = RaceResult::parse(&html, year, &circuit.clone())?;
     Ok(race_result)
 }
 

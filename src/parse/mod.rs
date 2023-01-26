@@ -4,7 +4,6 @@ use scraper::Selector;
 
 use crate::prelude::*;
 
-pub mod race;
 pub mod team;
 
 pub(crate) fn next_inner_html<'a>(i: &mut impl Iterator<Item = ElementRef<'a>>) -> Result<String> {
