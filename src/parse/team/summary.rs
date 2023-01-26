@@ -5,16 +5,12 @@ use selectors::attr::CaseSensitivity;
 use crate::parse::{next_inner_html, HtmlTable};
 use crate::prelude::*;
 use crate::types::TeamSummary;
+use crate::types::TeamSummaryEntry;
 
 const TABLE_SELECTOR_STR: &str =
     "div.resultsarchive-content>div.table-wrap>table.resultsarchive-table";
 
-pub struct ParsedTeamSummary {
-    pub year: u16,
-    pub data: Vec<TeamSummary>,
-}
-
-pub fn parse(html: &str, year: u16) -> Result<ParsedTeamSummary> {
+pub fn parse(html: &str, year: u16) -> Result<TeamSummary> {
     // parse html
     let document = Html::parse_document(html);
     let document_root = document.root_element();
@@ -26,10 +22,10 @@ pub fn parse(html: &str, year: u16) -> Result<ParsedTeamSummary> {
     let data: Result<Vec<_>, _> = table.rows().map(|r| parse_row(&r)).collect();
     let data = data.with_context(|| "parse table rows")?;
 
-    Ok(ParsedTeamSummary { year, data })
+    Ok(TeamSummary { year, data })
 }
 
-fn parse_row(row: &ElementRef) -> Result<TeamSummary> {
+fn parse_row(row: &ElementRef) -> Result<TeamSummaryEntry> {
     let a = Selector::parse("a").unwrap();
     let td = Selector::parse("td").unwrap();
 
@@ -61,7 +57,7 @@ fn parse_row(row: &ElementRef) -> Result<TeamSummary> {
     let team = team_col.inner_html().trim().to_string();
     let pts = next_inner_html(&mut cols).with_context(|| "column: pts")?;
 
-    Ok(TeamSummary {
+    Ok(TeamSummaryEntry {
         pos,
         url,
         team,

@@ -4,18 +4,12 @@ use selectors::attr::CaseSensitivity;
 
 use crate::parse::{next_inner_html, HtmlTable};
 use crate::prelude::*;
-use crate::types::{DriverFragment, DriverResult};
+use crate::types::{DriverFragment, DriverResult, DriverResultEntry};
 
 const TABLE_SELECTOR_STR: &str =
     "div.resultsarchive-wrapper>div.resultsarchive-content>div.table-wrap>table.resultsarchive-table";
 
-pub struct ParsedDriverResult {
-    pub year: u16,
-    pub driver: DriverFragment,
-    pub data: Vec<DriverResult>,
-}
-
-pub fn parse(html: &str, year: u16, driver: &DriverFragment) -> Result<ParsedDriverResult> {
+pub fn parse(html: &str, year: u16, driver: &DriverFragment) -> Result<DriverResult> {
     // parse html
     let document = Html::parse_document(html);
     let document_root = document.root_element();
@@ -27,14 +21,14 @@ pub fn parse(html: &str, year: u16, driver: &DriverFragment) -> Result<ParsedDri
     let data: Result<Vec<_>, _> = table.rows().map(|r| parse_row(&r)).collect();
     let data = data.with_context(|| "parse table rows")?;
 
-    Ok(ParsedDriverResult {
+    Ok(DriverResult {
         year,
         driver: driver.clone(),
         data,
     })
 }
 
-fn parse_row(row: &ElementRef) -> Result<DriverResult> {
+fn parse_row(row: &ElementRef) -> Result<DriverResultEntry> {
     let a = Selector::parse("a").unwrap();
     let td = Selector::parse("td").unwrap();
 
@@ -67,7 +61,7 @@ fn parse_row(row: &ElementRef) -> Result<DriverResult> {
     let pos = next_inner_html(&mut cols).with_context(|| "column: pos")?;
     let pts = next_inner_html(&mut cols).with_context(|| "column:pts")?;
 
-    Ok(DriverResult {
+    Ok(DriverResultEntry {
         grand_prix,
         date,
         pos,

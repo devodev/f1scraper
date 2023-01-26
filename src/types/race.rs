@@ -4,6 +4,13 @@ use crate::prelude::*;
 
 #[derive(Default, Debug)]
 pub struct RaceResult {
+    pub year: u16,
+    pub circuit: Circuit,
+    pub data: Vec<RaceResultEntry>,
+}
+
+#[derive(Default, Debug)]
+pub struct RaceResultEntry {
     pub pos: String,
     pub no: String,
     pub driver: String,
@@ -15,6 +22,12 @@ pub struct RaceResult {
 
 #[derive(Default, Debug)]
 pub struct RaceSummary {
+    pub year: u16,
+    pub data: Vec<RaceSummaryEntry>,
+}
+
+#[derive(Default, Debug)]
+pub struct RaceSummaryEntry {
     pub grand_prix: String,
     pub url: String,
     pub date: String,
@@ -24,7 +37,7 @@ pub struct RaceSummary {
     pub time: String,
 }
 
-impl RaceSummary {
+impl RaceSummaryEntry {
     pub fn circuit(&self) -> Result<Circuit> {
         // Example:
         //   /en/results.html/1950/races/100/italy/race-result.html

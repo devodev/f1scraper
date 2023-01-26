@@ -4,17 +4,11 @@ use selectors::attr::CaseSensitivity;
 
 use crate::parse::{next_inner_html, HtmlTable};
 use crate::prelude::*;
-use crate::types::{Circuit, RaceResult};
+use crate::types::{Circuit, RaceResult, RaceResultEntry};
 
 const TABLE_SELECTOR_STR: &str = "div.resultsarchive-wrapper>div.resultsarchive-content>div.resultsarchive-col-right>table.resultsarchive-table";
 
-pub struct ParsedRaceResult {
-    pub year: u16,
-    pub circuit: Circuit,
-    pub data: Vec<RaceResult>,
-}
-
-pub fn parse(html: &str, year: u16, circuit: &Circuit) -> Result<ParsedRaceResult> {
+pub fn parse(html: &str, year: u16, circuit: &Circuit) -> Result<RaceResult> {
     // parse html
     let document = Html::parse_document(html);
     let document_root = document.root_element();
@@ -26,14 +20,14 @@ pub fn parse(html: &str, year: u16, circuit: &Circuit) -> Result<ParsedRaceResul
     let data: Result<Vec<_>, _> = table.rows().map(|r| parse_row(&r)).collect();
     let data = data.with_context(|| "parse table rows")?;
 
-    Ok(ParsedRaceResult {
+    Ok(RaceResult {
         year,
         circuit: circuit.clone(),
         data,
     })
 }
 
-fn parse_row(row: &ElementRef) -> Result<RaceResult> {
+fn parse_row(row: &ElementRef) -> Result<RaceResultEntry> {
     let td = Selector::parse("td").unwrap();
     let span = Selector::parse("span").unwrap();
 
@@ -58,7 +52,7 @@ fn parse_row(row: &ElementRef) -> Result<RaceResult> {
     let time_retired = next_inner_html(&mut cols).with_context(|| "column: time_retired")?;
     let pts = next_inner_html(&mut cols).with_context(|| "column:pts")?;
 
-    Ok(RaceResult {
+    Ok(RaceResultEntry {
         pos,
         no,
         driver,

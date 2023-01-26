@@ -1,5 +1,6 @@
-use f1scraper::parse::race::{parse_summary, ParsedRaceSummary};
+use f1scraper::parse::race::parse_summary;
 use f1scraper::scrape::{RaceResultSummaryTarget, Scraper};
+use f1scraper::types::RaceSummary;
 
 use crate::commands::ScrapeContext;
 use crate::{prelude::*, YearFlags};
@@ -26,7 +27,7 @@ pub fn process(scrape_ctx: ScrapeContext, args: Args) -> Result<()> {
     Ok(())
 }
 
-pub fn query_and_parse(scraper: &Scraper, year: u16) -> Result<ParsedRaceSummary> {
+pub fn query_and_parse(scraper: &Scraper, year: u16) -> Result<RaceSummary> {
     // create scrape target
     let target = RaceResultSummaryTarget::new(year)
         .with_context(|| format!("create scrape target: race result summary {year}"))?;
@@ -40,7 +41,7 @@ pub fn query_and_parse(scraper: &Scraper, year: u16) -> Result<ParsedRaceSummary
     Ok(summaries)
 }
 
-fn print(summaries: &ParsedRaceSummary) -> Result<()> {
+fn print(summaries: &RaceSummary) -> Result<()> {
     for row in summaries.data.iter() {
         println!("{row:?}");
     }

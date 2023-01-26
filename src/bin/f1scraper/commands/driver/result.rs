@@ -1,9 +1,9 @@
 use log::debug;
 use std::collections::HashMap;
 
-use f1scraper::parse::driver::{parse_result, ParsedDriverResult};
+use f1scraper::parse::driver::parse_result;
 use f1scraper::scrape::{DriverResultTarget, Scraper};
-use f1scraper::types::DriverFragment;
+use f1scraper::types::{DriverFragment, DriverResult};
 
 use crate::commands::ScrapeContext;
 use crate::{prelude::*, YearFlags};
@@ -74,11 +74,7 @@ pub fn process(scrape_ctx: ScrapeContext, args: Args) -> Result<()> {
     Ok(())
 }
 
-fn query_and_parse(
-    scraper: &Scraper,
-    year: u16,
-    driver: &DriverFragment,
-) -> Result<ParsedDriverResult> {
+fn query_and_parse(scraper: &Scraper, year: u16, driver: &DriverFragment) -> Result<DriverResult> {
     // create scrape target
     let target = DriverResultTarget::new(year, driver)
         .with_context(|| format!("create scrape target: driver result {year}"))?;
@@ -92,7 +88,7 @@ fn query_and_parse(
     Ok(driver_result)
 }
 
-fn print(driver_result: &ParsedDriverResult) -> Result<()> {
+fn print(driver_result: &DriverResult) -> Result<()> {
     let default_value = "-".to_string();
     let mut driver_name = &driver_result.driver.name;
     if driver_name.is_empty() {

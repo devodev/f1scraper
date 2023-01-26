@@ -4,6 +4,13 @@ use crate::prelude::*;
 
 #[derive(Default, Debug)]
 pub struct TeamResult {
+    pub year: u16,
+    pub team: Team,
+    pub data: Vec<TeamResultEntry>,
+}
+
+#[derive(Default, Debug)]
+pub struct TeamResultEntry {
     pub grand_prix: String,
     pub date: String,
     pub pts: String,
@@ -11,13 +18,19 @@ pub struct TeamResult {
 
 #[derive(Default, Debug)]
 pub struct TeamSummary {
+    pub year: u16,
+    pub data: Vec<TeamSummaryEntry>,
+}
+
+#[derive(Default, Debug)]
+pub struct TeamSummaryEntry {
     pub pos: String,
     pub url: String,
     pub team: String,
     pub pts: String,
 }
 
-impl TeamSummary {
+impl TeamSummaryEntry {
     pub fn team(&self) -> Result<Team> {
         // Example:
         //   /en/results.html/1950/team/alfa_romeo_ferrari.html

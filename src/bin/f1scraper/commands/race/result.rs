@@ -1,9 +1,9 @@
 use log::debug;
 use std::collections::HashMap;
 
-use f1scraper::parse::race::{parse_result, ParsedRaceResult};
+use f1scraper::parse::race::parse_result;
 use f1scraper::scrape::{RaceResultTarget, Scraper};
-use f1scraper::types::Circuit;
+use f1scraper::types::{Circuit, RaceResult};
 
 use crate::commands::ScrapeContext;
 use crate::{prelude::*, YearFlags};
@@ -74,7 +74,7 @@ pub fn process(scrape_ctx: ScrapeContext, args: Args) -> Result<()> {
     Ok(())
 }
 
-fn query_and_parse(scraper: &Scraper, year: u16, circuit: &Circuit) -> Result<ParsedRaceResult> {
+fn query_and_parse(scraper: &Scraper, year: u16, circuit: &Circuit) -> Result<RaceResult> {
     // create scrape target
     let target = RaceResultTarget::new(year, circuit)
         .with_context(|| format!("create scrape target: race result {year}"))?;
@@ -88,7 +88,7 @@ fn query_and_parse(scraper: &Scraper, year: u16, circuit: &Circuit) -> Result<Pa
     Ok(race_result)
 }
 
-fn print(race_result: &ParsedRaceResult) -> Result<()> {
+fn print(race_result: &RaceResult) -> Result<()> {
     let default_value = "-".to_string();
     let mut circuit_name = &race_result.circuit.name;
     if circuit_name.is_empty() {

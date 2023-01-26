@@ -4,17 +4,12 @@ use selectors::attr::CaseSensitivity;
 
 use crate::parse::{next_inner_html, HtmlTable};
 use crate::prelude::*;
-use crate::types::DriverSummary;
+use crate::types::{DriverSummary, DriverSummaryEntry};
 
 const TABLE_SELECTOR_STR: &str =
     "div.resultsarchive-wrapper>div.resultsarchive-content>div.table-wrap>table.resultsarchive-table";
 
-pub struct ParsedDriverSummary {
-    pub year: u16,
-    pub data: Vec<DriverSummary>,
-}
-
-pub fn parse(html: &str, year: u16) -> Result<ParsedDriverSummary> {
+pub fn parse(html: &str, year: u16) -> Result<DriverSummary> {
     // parse html
     let document = Html::parse_document(html);
     let document_root = document.root_element();
@@ -26,10 +21,10 @@ pub fn parse(html: &str, year: u16) -> Result<ParsedDriverSummary> {
     let data: Result<Vec<_>, _> = table.rows().map(|r| parse_row(&r)).collect();
     let data = data.with_context(|| "parse table rows")?;
 
-    Ok(ParsedDriverSummary { year, data })
+    Ok(DriverSummary { year, data })
 }
 
-fn parse_row(row: &ElementRef) -> Result<DriverSummary> {
+fn parse_row(row: &ElementRef) -> Result<DriverSummaryEntry> {
     let a = Selector::parse("a").unwrap();
     let td = Selector::parse("td").unwrap();
     let span = Selector::parse("span").unwrap();
@@ -77,7 +72,7 @@ fn parse_row(row: &ElementRef) -> Result<DriverSummary> {
         .to_string();
     let pts = next_inner_html(&mut cols).with_context(|| "column: pts")?;
 
-    Ok(DriverSummary {
+    Ok(DriverSummaryEntry {
         pos,
         url,
         driver,

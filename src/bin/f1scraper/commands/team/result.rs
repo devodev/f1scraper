@@ -1,9 +1,9 @@
 use log::debug;
 use std::collections::HashMap;
 
-use f1scraper::parse::team::{parse_result, ParsedTeamResult};
+use f1scraper::parse::team::parse_result;
 use f1scraper::scrape::{Scraper, TeamResultTarget};
-use f1scraper::types::Team;
+use f1scraper::types::{Team, TeamResult};
 
 use crate::commands::ScrapeContext;
 use crate::{prelude::*, YearFlags};
@@ -70,7 +70,7 @@ pub fn process(scrape_ctx: ScrapeContext, args: Args) -> Result<()> {
     Ok(())
 }
 
-fn query_and_parse(scraper: &Scraper, year: u16, team: &Team) -> Result<ParsedTeamResult> {
+fn query_and_parse(scraper: &Scraper, year: u16, team: &Team) -> Result<TeamResult> {
     // create scrape target
     let target = TeamResultTarget::new(year, team)
         .with_context(|| format!("create scrape target: team result {year}"))?;
@@ -84,7 +84,7 @@ fn query_and_parse(scraper: &Scraper, year: u16, team: &Team) -> Result<ParsedTe
     Ok(team_result)
 }
 
-fn print(team_result: &ParsedTeamResult) -> Result<()> {
+fn print(team_result: &TeamResult) -> Result<()> {
     let default_value = "-".to_string();
     let mut team_name = &team_result.team.name;
     if team_name.is_empty() {

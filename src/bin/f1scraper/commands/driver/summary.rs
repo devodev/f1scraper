@@ -1,5 +1,6 @@
-use f1scraper::parse::driver::{parse_summary, ParsedDriverSummary};
+use f1scraper::parse::driver::parse_summary;
 use f1scraper::scrape::{DriverResultSummaryTarget, Scraper};
+use f1scraper::types::DriverSummary;
 
 use crate::commands::ScrapeContext;
 use crate::{prelude::*, YearFlags};
@@ -26,7 +27,7 @@ pub fn process(scrape_ctx: ScrapeContext, args: Args) -> Result<()> {
     Ok(())
 }
 
-pub fn query_and_parse(scraper: &Scraper, year: u16) -> Result<ParsedDriverSummary> {
+pub fn query_and_parse(scraper: &Scraper, year: u16) -> Result<DriverSummary> {
     // create scrape target
     let target = DriverResultSummaryTarget::new(year)
         .with_context(|| format!("create scrape target: driver result summary {year}"))?;
@@ -40,7 +41,7 @@ pub fn query_and_parse(scraper: &Scraper, year: u16) -> Result<ParsedDriverSumma
     Ok(driver_summary)
 }
 
-fn print(driver_summary: &ParsedDriverSummary) -> Result<()> {
+fn print(driver_summary: &DriverSummary) -> Result<()> {
     for row in driver_summary.data.iter() {
         println!("{row:?}");
     }

@@ -4,17 +4,12 @@ use selectors::attr::CaseSensitivity;
 
 use crate::parse::{next_inner_html, HtmlTable};
 use crate::prelude::*;
-use crate::types::RaceSummary;
+use crate::types::{RaceSummary, RaceSummaryEntry};
 
 const TABLE_SELECTOR_STR: &str =
     "div.resultsarchive-content>div.table-wrap>table.resultsarchive-table";
 
-pub struct ParsedRaceSummary {
-    pub year: u16,
-    pub data: Vec<RaceSummary>,
-}
-
-pub fn parse(html: &str, year: u16) -> Result<ParsedRaceSummary> {
+pub fn parse(html: &str, year: u16) -> Result<RaceSummary> {
     // parse html
     let document = Html::parse_document(html);
     let document_root = document.root_element();
@@ -26,10 +21,10 @@ pub fn parse(html: &str, year: u16) -> Result<ParsedRaceSummary> {
     let data: Result<Vec<_>, _> = table.rows().map(|r| parse_row(&r)).collect();
     let data = data.with_context(|| "parse table rows")?;
 
-    Ok(ParsedRaceSummary { year, data })
+    Ok(RaceSummary { year, data })
 }
 
-fn parse_row(row: &ElementRef) -> Result<RaceSummary> {
+fn parse_row(row: &ElementRef) -> Result<RaceSummaryEntry> {
     let a = Selector::parse("a").unwrap();
     let td = Selector::parse("td").unwrap();
     let span = Selector::parse("span").unwrap();
@@ -72,7 +67,7 @@ fn parse_row(row: &ElementRef) -> Result<RaceSummary> {
     let laps = next_inner_html(&mut cols).with_context(|| "column: laps")?;
     let time = next_inner_html(&mut cols).with_context(|| "column: time")?;
 
-    Ok(RaceSummary {
+    Ok(RaceSummaryEntry {
         grand_prix,
         url,
         date,

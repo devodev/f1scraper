@@ -4,6 +4,13 @@ use crate::prelude::*;
 
 #[derive(Default, Debug)]
 pub struct DriverResult {
+    pub year: u16,
+    pub driver: DriverFragment,
+    pub data: Vec<DriverResultEntry>,
+}
+
+#[derive(Default, Debug)]
+pub struct DriverResultEntry {
     pub grand_prix: String,
     pub date: String,
     pub car: String,
@@ -13,6 +20,12 @@ pub struct DriverResult {
 
 #[derive(Default, Debug)]
 pub struct DriverSummary {
+    pub year: u16,
+    pub data: Vec<DriverSummaryEntry>,
+}
+
+#[derive(Default, Debug)]
+pub struct DriverSummaryEntry {
     pub pos: String,
     pub url: String,
     pub driver: String,
@@ -21,7 +34,7 @@ pub struct DriverSummary {
     pub pts: String,
 }
 
-impl DriverSummary {
+impl DriverSummaryEntry {
     pub fn driver(&self) -> Result<DriverFragment> {
         // Example:
         //   /en/results.html/1950/drivers/NINFAR01/nino-farina.html
