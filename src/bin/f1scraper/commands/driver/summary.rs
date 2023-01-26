@@ -12,17 +12,10 @@ pub struct Args {
 }
 
 pub fn run(scrape_ctx: ScrapeContext, args: Args) -> Result<()> {
-    // exact year takes precedence
-    if let Some(year) = args.year_flags.year {
-        let driver_summary = query_and_parse(&scrape_ctx.scraper, year)?;
-        print(&driver_summary)?;
-        return Ok(());
-    }
-
-    // range of years
-    for year in args.year_flags.year_min..=args.year_flags.year_max {
-        let driver_summary = query_and_parse(&scrape_ctx.scraper, year)?;
-        print(&driver_summary)?
+    let (year_min, year_max) = args.year_flags.min_max();
+    for year in year_min..=year_max {
+        let result = query_and_parse(&scrape_ctx.scraper, year)?;
+        print(&result)?
     }
     Ok(())
 }
@@ -35,7 +28,6 @@ pub fn query_and_parse(scraper: &Scraper, year: u16) -> Result<DriverSummary> {
     let html = scraper
         .scrape(target)
         .with_context(|| format!("scrape: driver result summary {year}"))?;
-
     // parse html text as driver summary
     let driver_summary = parse_summary(&html, year)?;
     Ok(driver_summary)

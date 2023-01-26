@@ -12,17 +12,10 @@ pub struct Args {
 }
 
 pub fn run(scrape_ctx: ScrapeContext, args: Args) -> Result<()> {
-    // exact year takes precedence
-    if let Some(year) = args.year_flags.year {
-        let summaries = query_and_parse(&scrape_ctx.scraper, year)?;
-        print(&summaries)?;
-        return Ok(());
-    }
-
-    // range of years
-    for year in args.year_flags.year_min..=args.year_flags.year_max {
-        let summaries = query_and_parse(&scrape_ctx.scraper, year)?;
-        print(&summaries)?
+    let (year_min, year_max) = args.year_flags.min_max();
+    for year in year_min..=year_max {
+        let result = query_and_parse(&scrape_ctx.scraper, year)?;
+        print(&result)?
     }
     Ok(())
 }
@@ -35,7 +28,6 @@ pub fn query_and_parse(scraper: &Scraper, year: u16) -> Result<RaceSummary> {
     let html = scraper
         .scrape(target)
         .with_context(|| format!("scrape: race result summary {year}"))?;
-
     // parse html text as race summary
     let summaries = parse_summary(&html, year)?;
     Ok(summaries)
