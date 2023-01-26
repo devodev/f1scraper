@@ -3,15 +3,6 @@ use std::fmt::Debug;
 use crate::prelude::*;
 
 #[derive(Default, Debug)]
-pub struct Driver {
-    pub name: String,
-    pub circuit: String,
-    pub date: String,
-
-    pub race_results: Vec<DriverResult>,
-}
-
-#[derive(Default, Debug)]
 pub struct DriverResult {
     pub grand_prix: String,
     pub date: String,
