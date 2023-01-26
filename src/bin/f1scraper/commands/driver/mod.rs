@@ -20,9 +20,9 @@ pub enum Commands {
     Result(result::Args),
 }
 
-pub fn process(scrape_ctx: ScrapeContext, cmd: Commands) -> Result<()> {
+pub fn run(scrape_ctx: ScrapeContext, cmd: Commands) -> Result<()> {
     match cmd {
-        Commands::Summary(args) => summary::process(scrape_ctx, args),
-        Commands::Result(args) => result::process(scrape_ctx, args),
+        Commands::Summary(args) => summary::run(scrape_ctx, args),
+        Commands::Result(args) => result::run(scrape_ctx, args),
     }
 }

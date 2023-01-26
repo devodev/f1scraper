@@ -19,7 +19,7 @@ pub struct Args {
     year_flags: YearFlags,
 }
 
-pub fn process(scrape_ctx: ScrapeContext, args: Args) -> Result<()> {
+pub fn run(scrape_ctx: ScrapeContext, args: Args) -> Result<()> {
     let mut year_min = args.year_flags.year_min;
     let mut year_max = args.year_flags.year_max;
     if let Some(year) = args.year_flags.year {

@@ -11,7 +11,7 @@ pub struct Args {
     year_flags: YearFlags,
 }
 
-pub fn process(scrape_ctx: ScrapeContext, args: Args) -> Result<()> {
+pub fn run(scrape_ctx: ScrapeContext, args: Args) -> Result<()> {
     // exact year takes precedence
     if let Some(year) = args.year_flags.year {
         let driver_summary = query_and_parse(&scrape_ctx.scraper, year)?;

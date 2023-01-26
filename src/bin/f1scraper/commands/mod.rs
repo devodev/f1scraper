@@ -53,8 +53,8 @@ pub fn process(cmd: Commands) -> Result<()> {
     let client = reqwest::blocking::Client::new();
     let ctx = ScrapeContext::new(Scraper::new(client));
     match cmd {
-        Commands::Race(args) => race::process(ctx, args.command),
-        Commands::Driver(args) => driver::process(ctx, args.command),
+        Commands::Race(args) => race::run(ctx, args.command),
+        Commands::Driver(args) => driver::run(ctx, args.command),
         Commands::Team(args) => team::process(ctx, args.command),
     }
 }
