@@ -20,12 +20,7 @@ pub struct Args {
 }
 
 pub fn run(scrape_ctx: ScrapeContext, args: Args) -> Result<()> {
-    let mut year_min = args.year_flags.year_min;
-    let mut year_max = args.year_flags.year_max;
-    if let Some(year) = args.year_flags.year {
-        year_min = year;
-        year_max = year;
-    }
+    let (year_min, year_max) = args.year_flags.min_max();
 
     for year in year_min..=year_max {
         // query summary to obtain the list of available circuits

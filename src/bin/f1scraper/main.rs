@@ -37,6 +37,15 @@ pub struct YearFlags {
     year_max: u16,
 }
 
+impl YearFlags {
+    fn min_max(&self) -> (u16, u16) {
+        match self.year {
+            Some(year) => (year, year),
+            _ => (self.year_min, self.year_max),
+        }
+    }
+}
+
 fn main() -> Result<()> {
     // Parse cli
     let cli = Cli::parse();
