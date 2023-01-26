@@ -1,7 +1,6 @@
 use log::debug;
 use std::collections::HashMap;
 
-use f1scraper::parse::driver::parse_result;
 use f1scraper::scrape::{DriverResultTarget, Scraper};
 use f1scraper::types::{DriverFragment, DriverResult};
 
@@ -77,9 +76,8 @@ fn query_and_parse(scraper: &Scraper, year: u16, driver: &DriverFragment) -> Res
     let html = scraper
         .scrape(target)
         .with_context(|| format!("scrape: driver result {year}"))?;
-
     // parse html text as driver result
-    let driver_result = parse_result(&html, year, &driver.clone())?;
+    let driver_result = DriverResult::parse(&html, year, &driver.clone())?;
     Ok(driver_result)
 }
 

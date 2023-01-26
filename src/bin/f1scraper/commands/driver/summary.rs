@@ -1,4 +1,3 @@
-use f1scraper::parse::driver::parse_summary;
 use f1scraper::scrape::{DriverResultSummaryTarget, Scraper};
 use f1scraper::types::DriverSummary;
 
@@ -29,7 +28,7 @@ pub fn query_and_parse(scraper: &Scraper, year: u16) -> Result<DriverSummary> {
         .scrape(target)
         .with_context(|| format!("scrape: driver result summary {year}"))?;
     // parse html text as driver summary
-    let driver_summary = parse_summary(&html, year)?;
+    let driver_summary = DriverSummary::parse(&html, year)?;
     Ok(driver_summary)
 }
 

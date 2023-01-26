@@ -4,7 +4,6 @@ use scraper::Selector;
 
 use crate::prelude::*;
 
-pub mod driver;
 pub mod race;
 pub mod team;
 
