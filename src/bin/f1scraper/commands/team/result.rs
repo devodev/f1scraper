@@ -1,7 +1,6 @@
 use log::debug;
 use std::collections::HashMap;
 
-use f1scraper::parse::team::parse_result;
 use f1scraper::scrape::{Scraper, TeamResultTarget};
 use f1scraper::types::{Team, TeamResult};
 
@@ -75,7 +74,7 @@ fn query_and_parse(scraper: &Scraper, year: u16, team: &Team) -> Result<TeamResu
         .with_context(|| format!("scrape: team result {year}"))?;
 
     // parse html text as team result
-    let team_result = parse_result(&html, year, &team.clone())?;
+    let team_result = TeamResult::parse(&html, year, &team.clone())?;
     Ok(team_result)
 }
 

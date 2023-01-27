@@ -1,4 +1,3 @@
-use f1scraper::parse::team::parse_summary;
 use f1scraper::scrape::{Scraper, TeamResultSummaryTarget};
 use f1scraper::types::TeamSummary;
 
@@ -29,7 +28,7 @@ pub fn query_and_parse(scraper: &Scraper, year: u16) -> Result<TeamSummary> {
         .scrape(target)
         .with_context(|| format!("scrape: team result summary {year}"))?;
     // parse html text as team summary
-    let summaries = parse_summary(&html, year)?;
+    let summaries = TeamSummary::parse(&html, year)?;
     Ok(summaries)
 }
 
