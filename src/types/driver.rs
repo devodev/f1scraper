@@ -187,9 +187,7 @@ impl DriverSummaryEntry {
             pts,
         })
     }
-}
 
-impl DriverSummaryEntry {
     pub fn driver(&self) -> Result<DriverFragment> {
         // Example:
         //   /en/results.html/1950/drivers/NINFAR01/nino-farina.html

@@ -177,9 +177,7 @@ impl RaceSummaryEntry {
             time,
         })
     }
-}
 
-impl RaceSummaryEntry {
     pub fn circuit(&self) -> Result<Circuit> {
         // Example:
         //   /en/results.html/1950/races/100/italy/race-result.html

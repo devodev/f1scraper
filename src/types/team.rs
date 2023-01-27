@@ -150,9 +150,7 @@ impl TeamSummaryEntry {
             pts,
         })
     }
-}
 
-impl TeamSummaryEntry {
     pub fn team(&self) -> Result<Team> {
         // Example:
         //   /en/results.html/1950/team/alfa_romeo_ferrari.html
