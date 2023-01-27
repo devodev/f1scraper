@@ -1,8 +1,8 @@
 use f1scraper::scrape::{RaceResultSummaryTarget, Scraper};
 use f1scraper::types::RaceSummary;
 
-use crate::commands::ScrapeContext;
-use crate::{prelude::*, YearFlags};
+use crate::commands::{ScrapeContext, YearFlags};
+use crate::prelude::*;
 
 #[derive(Debug, clap::Args)]
 pub struct Args {

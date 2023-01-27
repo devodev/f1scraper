@@ -10,6 +10,30 @@ mod driver;
 mod race;
 mod team;
 
+#[derive(Debug, clap::Args)]
+pub struct YearFlags {
+    /// Only scrape the page for the provided year
+    #[arg(short, long)]
+    year: Option<u16>,
+
+    /// Minimim year to use when scraping pages
+    #[arg(long, default_value_t = 1950)]
+    year_min: u16,
+
+    /// Maximum year to use when scraping pages
+    #[arg(long, default_value_t = 2023)]
+    year_max: u16,
+}
+
+impl YearFlags {
+    fn min_max(&self) -> (u16, u16) {
+        match self.year {
+            Some(year) => (year, year),
+            _ => (self.year_min, self.year_max),
+        }
+    }
+}
+
 #[derive(Default)]
 pub struct ScrapeContext {
     scraper: Scraper,

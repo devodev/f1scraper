@@ -4,8 +4,8 @@ use std::collections::HashMap;
 use f1scraper::scrape::{RaceResultTarget, Scraper};
 use f1scraper::types::{Circuit, RaceResult};
 
-use crate::commands::ScrapeContext;
-use crate::{prelude::*, YearFlags};
+use crate::commands::{ScrapeContext, YearFlags};
+use crate::prelude::*;
 
 use super::summary;
 

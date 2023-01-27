@@ -4,8 +4,8 @@ use std::collections::HashMap;
 use f1scraper::scrape::{Scraper, TeamResultTarget};
 use f1scraper::types::{Team, TeamResult};
 
-use crate::commands::ScrapeContext;
-use crate::{prelude::*, YearFlags};
+use crate::commands::{ScrapeContext, YearFlags};
+use crate::prelude::*;
 
 use super::summary;
 
