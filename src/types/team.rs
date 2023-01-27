@@ -1,11 +1,12 @@
 use std::fmt::Debug;
 
 use anyhow::Context;
-use scraper::{ElementRef, Html, Selector};
-use selectors::attr::CaseSensitivity;
+use scraper::{ElementRef, Html};
 
-use crate::parse::{next_inner_html, HtmlTable};
+use crate::parse::HtmlTable;
 use crate::prelude::*;
+
+use super::ScrapperHelper;
 
 #[derive(Default, Debug)]
 pub struct TeamResult {
@@ -46,27 +47,20 @@ pub struct TeamResultEntry {
 
 impl TeamResultEntry {
     fn parse(row: &ElementRef) -> Result<Self> {
-        let a = Selector::parse("a").unwrap();
-        let td = Selector::parse("td").unwrap();
+        let helper = ScrapperHelper::new();
 
-        let mut cols = row.select(&td).filter(|row| {
-            !row.value()
-                .has_class("limiter", CaseSensitivity::AsciiCaseInsensitive)
-        });
+        let cols: Vec<_> = helper.table_cols(row).collect();
+        if cols.len() != 3 {
+            return Err(anyhow::anyhow!("invalid column count"));
+        }
 
-        let grand_prix = cols
-            .next()
-            .ok_or(anyhow::anyhow!("expected column: grand prix"))?
-            .select(&a)
-            .map(|x| x.inner_html())
-            .next()
-            .ok_or(anyhow::anyhow!(
-                "expected column: grand prix in <a> element"
-            ))?
-            .trim()
-            .to_string();
-        let date = next_inner_html(&mut cols).with_context(|| "column: date")?;
-        let pts = next_inner_html(&mut cols).with_context(|| "column: pts")?;
+        let grand_prix = helper
+            .link(&cols[0])
+            .with_context(|| "column: grand prix")?;
+        let date = helper
+            .inner_html(&cols[1])
+            .with_context(|| "column: date")?;
+        let pts = helper.inner_html(&cols[2]).with_context(|| "column: pts")?;
 
         Ok(Self {
             grand_prix,
@@ -112,36 +106,18 @@ pub struct TeamSummaryEntry {
 
 impl TeamSummaryEntry {
     fn parse(row: &ElementRef) -> Result<Self> {
-        let a = Selector::parse("a").unwrap();
-        let td = Selector::parse("td").unwrap();
+        let helper = ScrapperHelper::new();
 
-        let mut cols = row.select(&td).filter(|row| {
-            !row.value()
-                .has_class("limiter", CaseSensitivity::AsciiCaseInsensitive)
-        });
+        let cols: Vec<_> = helper.table_cols(row).collect();
+        if cols.len() != 3 {
+            return Err(anyhow::anyhow!("invalid column count"));
+        }
 
-        let pos = cols
-            .next()
-            .ok_or(anyhow::anyhow!("expected table column: pos"))?
-            .inner_html()
-            .trim()
-            .to_string();
-        let team_col = cols
-            .next()
-            .ok_or(anyhow::anyhow!("expected table column: team"))?
-            .select(&a)
-            .next()
-            .ok_or(anyhow::anyhow!("expected a element on table column: team"))?;
-        let url = team_col
-            .value()
-            .attr("href")
-            .ok_or(anyhow::anyhow!(
-                "expected a element to contain url on column: team"
-            ))?
-            .trim()
-            .to_string();
-        let team = team_col.inner_html().trim().to_string();
-        let pts = next_inner_html(&mut cols).with_context(|| "column: pts")?;
+        let pos = helper.inner_html(&cols[0]).with_context(|| "column: pos")?;
+        let team_col = helper.link_elem(&cols[1]).with_context(|| "column: team")?;
+        let url = helper.href(&team_col).with_context(|| "column: team")?;
+        let team = helper.link(&cols[1]).with_context(|| "column: pts")?;
+        let pts = helper.inner_html(&cols[2]).with_context(|| "column: pts")?;
 
         Ok(Self {
             pos,

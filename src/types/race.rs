@@ -1,11 +1,12 @@
 use std::fmt::Debug;
 
 use anyhow::Context;
-use scraper::{ElementRef, Html, Selector};
-use selectors::attr::CaseSensitivity;
+use scraper::{ElementRef, Html};
 
-use crate::parse::{next_inner_html, HtmlTable};
+use crate::parse::HtmlTable;
 use crate::prelude::*;
+
+use super::ScrapperHelper;
 
 #[derive(Default, Debug)]
 pub struct RaceResult {
@@ -50,29 +51,26 @@ pub struct RaceResultEntry {
 
 impl RaceResultEntry {
     fn parse(row: &ElementRef) -> Result<Self> {
-        let td = Selector::parse("td").unwrap();
-        let span = Selector::parse("span").unwrap();
+        let helper = ScrapperHelper::new();
 
-        let mut cols = row.select(&td).filter(|row| {
-            !row.value()
-                .has_class("limiter", CaseSensitivity::AsciiCaseInsensitive)
-        });
+        let cols: Vec<_> = helper.table_cols(row).collect();
+        if cols.len() != 7 {
+            return Err(anyhow::anyhow!("invalid column count"));
+        }
 
-        let pos = next_inner_html(&mut cols).with_context(|| "column: pos")?;
-        let no = next_inner_html(&mut cols).with_context(|| "column: no")?;
-        let driver = cols
-            .next()
-            .ok_or(anyhow::anyhow!("expected column: driver"))?
-            .select(&span)
-            .map(|x| x.inner_html())
-            .collect::<Vec<String>>()
-            .join(" ")
-            .trim()
-            .to_string();
-        let car = next_inner_html(&mut cols).with_context(|| "column: car")?;
-        let laps = next_inner_html(&mut cols).with_context(|| "column: laps")?;
-        let time_retired = next_inner_html(&mut cols).with_context(|| "column: time_retired")?;
-        let pts = next_inner_html(&mut cols).with_context(|| "column:pts")?;
+        let pos = helper.inner_html(&cols[0]).with_context(|| "column: pos")?;
+        let no = helper.inner_html(&cols[1]).with_context(|| "column: no")?;
+        let driver = helper
+            .join_spans(&cols[2])
+            .with_context(|| "column: driver")?;
+        let car = helper.inner_html(&cols[3]).with_context(|| "column: car")?;
+        let laps = helper
+            .inner_html(&cols[4])
+            .with_context(|| "column: laps")?;
+        let time_retired = helper
+            .inner_html(&cols[5])
+            .with_context(|| "column: time_retired")?;
+        let pts = helper.inner_html(&cols[6]).with_context(|| "column:pts")?;
 
         Ok(Self {
             pos,
@@ -125,47 +123,35 @@ pub struct RaceSummaryEntry {
 
 impl RaceSummaryEntry {
     fn parse(row: &ElementRef) -> Result<Self> {
-        let a = Selector::parse("a").unwrap();
-        let td = Selector::parse("td").unwrap();
-        let span = Selector::parse("span").unwrap();
+        let helper = ScrapperHelper::new();
 
-        let mut cols = row.select(&td).filter(|row| {
-            !row.value()
-                .has_class("limiter", CaseSensitivity::AsciiCaseInsensitive)
-        });
+        let cols: Vec<_> = helper.table_cols(row).collect();
+        if cols.len() != 6 {
+            return Err(anyhow::anyhow!("invalid column count"));
+        }
 
-        let grand_prix_col = cols
-            .next()
-            .ok_or(anyhow::anyhow!("expected table column: grand prix"))?
-            .select(&a)
-            .next()
-            .ok_or(anyhow::anyhow!(
-                "expected a element on table column: grand prix"
-            ))?;
-
-        let url = grand_prix_col
-            .value()
-            .attr("href")
-            .ok_or(anyhow::anyhow!(
-                "expected a element to contain url on column: grand prix"
-            ))?
-            .trim()
-            .to_string();
-
-        let grand_prix = grand_prix_col.inner_html().trim().to_string();
-        let date = next_inner_html(&mut cols).with_context(|| "column: date")?;
-        let winner = cols
-            .next()
-            .ok_or(anyhow::anyhow!("expected column: winner"))?
-            .select(&span)
-            .map(|x| x.inner_html())
-            .collect::<Vec<String>>()
-            .join(" ")
-            .trim()
-            .to_string();
-        let car = next_inner_html(&mut cols).with_context(|| "column: car")?;
-        let laps = next_inner_html(&mut cols).with_context(|| "column: laps")?;
-        let time = next_inner_html(&mut cols).with_context(|| "column: time")?;
+        let grand_prix = helper
+            .link(&cols[0])
+            .with_context(|| "column: grand prix")?;
+        let grand_prix_col = helper
+            .link_elem(&cols[0])
+            .with_context(|| "column: grand prix")?;
+        let url = helper
+            .href(&grand_prix_col)
+            .with_context(|| "column: grand prix")?;
+        let date = helper
+            .inner_html(&cols[1])
+            .with_context(|| "column: date")?;
+        let winner = helper
+            .join_spans(&cols[2])
+            .with_context(|| "column: winner")?;
+        let car = helper.inner_html(&cols[3]).with_context(|| "column: car")?;
+        let laps = helper
+            .inner_html(&cols[4])
+            .with_context(|| "column: laps")?;
+        let time = helper
+            .inner_html(&cols[5])
+            .with_context(|| "column: time")?;
 
         Ok(Self {
             grand_prix,

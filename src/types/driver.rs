@@ -1,11 +1,12 @@
 use std::fmt::Debug;
 
 use anyhow::Context;
-use scraper::{ElementRef, Html, Selector};
-use selectors::attr::CaseSensitivity;
+use scraper::{ElementRef, Html};
 
-use crate::parse::{next_inner_html, HtmlTable};
+use crate::parse::HtmlTable;
 use crate::prelude::*;
+
+use super::ScrapperHelper;
 
 #[derive(Default, Debug)]
 pub struct DriverResult {
@@ -48,37 +49,22 @@ pub struct DriverResultEntry {
 
 impl DriverResultEntry {
     pub fn parse(row: &ElementRef) -> Result<Self> {
-        let a = Selector::parse("a").unwrap();
-        let td = Selector::parse("td").unwrap();
+        let helper = ScrapperHelper::new();
 
-        let mut cols = row.select(&td).filter(|row| {
-            !row.value()
-                .has_class("limiter", CaseSensitivity::AsciiCaseInsensitive)
-        });
+        let cols: Vec<_> = helper.table_cols(row).collect();
+        if cols.len() != 5 {
+            return Err(anyhow::anyhow!("invalid column count"));
+        }
 
-        let grand_prix = cols
-            .next()
-            .ok_or(anyhow::anyhow!("expected column: grand_prix"))?
-            .select(&a)
-            .map(|x| x.inner_html())
-            .next()
-            .ok_or(anyhow::anyhow!(
-                "expected column: grand_prix in <a> element"
-            ))?
-            .trim()
-            .to_string();
-        let date = next_inner_html(&mut cols).with_context(|| "column: date")?;
-        let car = cols
-            .next()
-            .ok_or(anyhow::anyhow!("expected column: car"))?
-            .select(&a)
-            .map(|x| x.inner_html())
-            .next()
-            .ok_or(anyhow::anyhow!("expected column: car in <a> element"))?
-            .trim()
-            .to_string();
-        let pos = next_inner_html(&mut cols).with_context(|| "column: pos")?;
-        let pts = next_inner_html(&mut cols).with_context(|| "column:pts")?;
+        let grand_prix = helper
+            .link(&cols[0])
+            .with_context(|| "column: grand_prix")?;
+        let date = helper
+            .inner_html(&cols[1])
+            .with_context(|| "column: date")?;
+        let car = helper.link(&cols[2]).with_context(|| "column: car")?;
+        let pos = helper.inner_html(&cols[3]).with_context(|| "column: pos")?;
+        let pts = helper.inner_html(&cols[4]).with_context(|| "column: pts")?;
 
         Ok(Self {
             grand_prix,
@@ -131,52 +117,26 @@ pub struct DriverSummaryEntry {
 
 impl DriverSummaryEntry {
     fn parse(row: &ElementRef) -> Result<Self> {
-        let a = Selector::parse("a").unwrap();
-        let td = Selector::parse("td").unwrap();
-        let span = Selector::parse("span").unwrap();
+        let helper = ScrapperHelper::new();
 
-        let mut cols = row.select(&td).filter(|row| {
-            !row.value()
-                .has_class("limiter", CaseSensitivity::AsciiCaseInsensitive)
-        });
+        let cols: Vec<_> = helper.table_cols(row).collect();
+        if cols.len() != 5 {
+            return Err(anyhow::anyhow!("invalid column count"));
+        }
 
-        let pos = next_inner_html(&mut cols).with_context(|| "column: pos")?;
-        let driver_col = cols
-            .next()
-            .ok_or(anyhow::anyhow!("expected table column: driver"))?
-            .select(&a)
-            .next()
-            .ok_or(anyhow::anyhow!(
-                "expected a element on table column: driver"
-            ))?;
-
-        let url = driver_col
-            .value()
-            .attr("href")
-            .ok_or(anyhow::anyhow!(
-                "expected a element to contain url on column: driver"
-            ))?
-            .trim()
-            .to_string();
-
-        let driver = driver_col
-            .select(&span)
-            .map(|x| x.inner_html())
-            .collect::<Vec<String>>()
-            .join(" ")
-            .trim()
-            .to_string();
-        let nationality = next_inner_html(&mut cols).with_context(|| "column: nationality")?;
-        let car = cols
-            .next()
-            .ok_or(anyhow::anyhow!("column: car"))?
-            .select(&a)
-            .next()
-            .ok_or(anyhow::anyhow!("column: car in <a> element"))?
-            .inner_html()
-            .trim()
-            .to_string();
-        let pts = next_inner_html(&mut cols).with_context(|| "column: pts")?;
+        let pos = helper.inner_html(&cols[0]).with_context(|| "column: pos")?;
+        let driver_col = helper
+            .link_elem(&cols[1])
+            .with_context(|| "column: driver")?;
+        let url = helper.href(&driver_col).with_context(|| "column: driver")?;
+        let driver = helper
+            .join_spans(&driver_col)
+            .with_context(|| "column: driver")?;
+        let nationality = helper
+            .inner_html(&cols[2])
+            .with_context(|| "column: nationality")?;
+        let car = helper.link(&cols[3]).with_context(|| "column: car")?;
+        let pts = helper.inner_html(&cols[4]).with_context(|| "column: pts")?;
 
         Ok(Self {
             pos,

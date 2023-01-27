@@ -4,16 +4,6 @@ use scraper::Selector;
 
 use crate::prelude::*;
 
-pub(crate) fn next_inner_html<'a>(i: &mut impl Iterator<Item = ElementRef<'a>>) -> Result<String> {
-    let s = i
-        .next()
-        .ok_or(anyhow::anyhow!("expected inner html"))?
-        .inner_html()
-        .trim()
-        .to_string();
-    Ok(s)
-}
-
 pub(crate) struct HtmlTable<'a> {
     inner: ElementRef<'a>,
 
