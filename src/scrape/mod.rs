@@ -1,14 +1,16 @@
 use log::debug;
+use log::info;
 
 use anyhow::{Context, Result};
 
 mod driver;
+mod fastestlap;
 mod race;
 mod team;
 
 pub use driver::DriverResultSummaryTarget;
 pub use driver::DriverResultTarget;
-use log::info;
+pub use fastestlap::FastestLapResultSummaryTarget;
 pub use race::RaceResultSummaryTarget;
 pub use race::RaceResultTarget;
 pub use team::TeamResultSummaryTarget;

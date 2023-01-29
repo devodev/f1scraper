@@ -4,6 +4,7 @@ use scraper::Selector;
 use crate::prelude::*;
 
 mod driver;
+mod fastestlap;
 mod race;
 mod team;
 
@@ -25,6 +26,9 @@ pub use team::TeamResult;
 pub use team::TeamResultEntry;
 pub use team::TeamSummary;
 pub use team::TeamSummaryEntry;
+
+pub use fastestlap::FastestLapSummary;
+pub use fastestlap::FastestLapSummaryEntry;
 
 // use log::info;
 // info!(

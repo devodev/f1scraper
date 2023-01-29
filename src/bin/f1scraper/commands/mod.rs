@@ -7,6 +7,7 @@ use f1scraper::scrape::Scraper;
 use crate::prelude::*;
 
 mod driver;
+mod fastestlap;
 mod race;
 mod team;
 
@@ -61,6 +62,9 @@ pub enum Commands {
 
     /// Scrape teams
     Team(team::Args),
+
+    /// Scrape fastest laps
+    FastestLap(fastestlap::Args),
 }
 
 impl fmt::Display for Commands {
@@ -69,6 +73,7 @@ impl fmt::Display for Commands {
             Commands::Race(_) => write!(f, "race"),
             Commands::Driver(_) => write!(f, "driver"),
             Commands::Team(_) => write!(f, "team"),
+            Commands::FastestLap(_) => write!(f, "fastest-lap"),
         }
     }
 }
@@ -80,5 +85,6 @@ pub fn process(cmd: Commands) -> Result<()> {
         Commands::Race(args) => race::run(ctx, args.command),
         Commands::Driver(args) => driver::run(ctx, args.command),
         Commands::Team(args) => team::process(ctx, args.command),
+        Commands::FastestLap(args) => fastestlap::process(ctx, args.command),
     }
 }
